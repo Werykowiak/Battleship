@@ -8,10 +8,10 @@ namespace Battleship
 {
     internal class GameModel
     {
-        public bool GameOver { get; private set; }
-        public const int BOARD_SIZE = 10;
-        public const int SHIP_COUNT = 5;
-        public int currentShipCount = 0;
+        private bool GameOver { get; private set; }
+        private const int BOARD_SIZE = 10;
+        private const int SHIP_COUNT = 5;
+        private int currentShipCount = 0;
         private List<ShipFleet> shipFleets = new List<ShipFleet>(2);
         private List<List<Shot>> shots = new List<List<Shot>>(2);
         private ShipBuilder builder = new ShipBuilder();

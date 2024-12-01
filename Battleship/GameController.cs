@@ -17,7 +17,7 @@ namespace Battleship
             _view = view;
         }
 
-        public void buildFleet()
+        private void buildFleet()
         {
             Player currentPlayer = Player.Player1;
 
