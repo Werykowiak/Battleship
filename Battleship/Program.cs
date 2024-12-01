@@ -1,4 +1,7 @@
-﻿namespace Battleship
+﻿using Battleship.Model;
+using Battleship.View;
+using Battleship.Controller;
+namespace Battleship
 {
     internal class Program
     {

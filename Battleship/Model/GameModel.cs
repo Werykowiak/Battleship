@@ -8,7 +8,7 @@ namespace Battleship.Model
 {
     internal class GameModel
     {
-        private bool GameOver { get; private set; }
+        private bool GameOver { get;  set; }
         private const int BOARD_SIZE = 10;
         private const int SHIP_COUNT = 5;
         private int currentShipCount = 0;
