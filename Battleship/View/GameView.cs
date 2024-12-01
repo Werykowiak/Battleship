@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Battleship.Model;
 
-namespace Battleship
+namespace Battleship.View
 {
     internal class GameView
     {
@@ -25,7 +26,7 @@ namespace Battleship
         public void DisplayMap(List<ShipPart> shipParts, List<Shot> firedShots)
         {
             Console.WriteLine("      A    B    C    D    E    F    G    H    I    J   ");
-            
+
             for (int i = 1; i <= 10; i++)
             {
                 Console.Write($"{i,2}    ");

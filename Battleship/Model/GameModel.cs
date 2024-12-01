@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Battleship
+namespace Battleship.Model
 {
     internal class GameModel
     {
@@ -25,11 +25,11 @@ namespace Battleship
             shots.Add(new List<Shot>());
 
             // Przykładowe strzały
-            shots[((int)Player.Player1)].Add(new Shot(new Vector2i(0, 0)));
-            shots[((int)Player.Player1)].Add(new Shot(new Vector2i(7, 9)));
-            shots[((int)Player.Player1)].Add(new Shot(new Vector2i(5, 4)));
-            shots[((int)Player.Player1)].Add(new Shot(new Vector2i(1, 5)));
-            shots[((int)Player.Player1)].Add(new Shot(new Vector2i(3, 2)));
+            shots[(int)Player.Player1].Add(new Shot(new Vector2i(0, 0)));
+            shots[(int)Player.Player1].Add(new Shot(new Vector2i(7, 9)));
+            shots[(int)Player.Player1].Add(new Shot(new Vector2i(5, 4)));
+            shots[(int)Player.Player1].Add(new Shot(new Vector2i(1, 5)));
+            shots[(int)Player.Player1].Add(new Shot(new Vector2i(3, 2)));
 
         }
 
@@ -48,13 +48,13 @@ namespace Battleship
             Vector2i pos1 = new Vector2i(coordinatesArray[0][0] - 'A', coordinatesArray[0][1] - '1');
             Vector2i pos2 = new Vector2i(coordinatesArray[1][0] - 'A', coordinatesArray[1][1] - '1');
 
-            if (builder.AddShip(pos1, pos2, shipFleets[((int)player)]) == false)
+            if (builder.AddShip(pos1, pos2, shipFleets[(int)player]) == false)
             {
                 //Console.WriteLine("Ship cannot be placed here.");
                 return true;
             }
 
-            shipFleets[((int)player)].addShip(builder.Build());
+            shipFleets[(int)player].addShip(builder.Build());
             //Console.WriteLine("Starting position: " + pos1.x + " " + pos1.y);
             //Console.WriteLine("Ending position: " + pos2.x + " " + pos2.y);
 
@@ -67,12 +67,12 @@ namespace Battleship
 
         public ShipFleet getShipFleet(Player player)
         {
-            return shipFleets[((int)player)];
+            return shipFleets[(int)player];
         }
 
         public List<Shot> getShots(Player player)
         {
-            return shots[((int)player)];
+            return shots[(int)player];
         }
 
         public void addShot(Player player)
@@ -81,7 +81,7 @@ namespace Battleship
             string coordinates = Console.ReadLine();
             Vector2i pos = new Vector2i(coordinates[0] - 'A', coordinates[1] - '1');
             Shot shot = new Shot(pos);
-            shots[((int)player)].Add(shot);
+            shots[(int)player].Add(shot);
         }
     }
 }

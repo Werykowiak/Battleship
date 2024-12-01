@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Battleship
+namespace Battleship.Model
 {
     internal class ShipFleet
     {
@@ -12,7 +12,7 @@ namespace Battleship
 
         public ShipFleet()
         {
-            this.ships = new List<Ship>();
+            ships = new List<Ship>();
         }
 
         public void addShip(Ship ship)

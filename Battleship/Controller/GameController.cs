@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Battleship.Model;
+using Battleship.View;
 
-namespace Battleship
+namespace Battleship.Controller
 {
     internal class GameController
     {
@@ -37,7 +39,7 @@ namespace Battleship
 
         public void Run()
         {
-           this.buildFleet();
+            buildFleet();
             bool gameover = false;
 
             Player currentPlayer = Player.Player1;

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Battleship
+namespace Battleship.Model
 {
     internal class ShipBuilder
     {
@@ -28,7 +28,7 @@ namespace Battleship
 
         private bool ValidateOverlap(Vector2i pos1, Vector2i pos2, ShipFleet fleet)
         {
-            foreach(ShipPart part in fleet.getParts())
+            foreach (ShipPart part in fleet.getParts())
                 if (part.getPosition().x >= pos1.x && part.getPosition().x <= pos2.x && part.getPosition().y >= pos1.y && part.getPosition().y <= pos2.y)
                     return false; // Overlap
 

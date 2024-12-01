@@ -4,8 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Battleship
-{ 
+namespace Battleship.Model
+{
     internal class ShipPart
     {
         private Vector2i position { get; set; }
@@ -13,13 +13,13 @@ namespace Battleship
 
         public ShipPart(int x, int y)
         {
-            this.position = new Vector2i(x, y);
+            position = new Vector2i(x, y);
             hit = false;
         }
 
         public bool Shoot(int x, int y)
         {
-            if (this.position.x == x && this.position.y == y)
+            if (position.x == x && position.y == y)
             {
                 hit = true;
                 return true;
