@@ -4,7 +4,10 @@
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello, World!");
+            var model = new GameModel();
+            var view = new GameView();
+            var controller = new GameController(model, view);
+            controller.Run();
         }
     }
 }
