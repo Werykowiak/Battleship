@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Battleship.Pattern;
 
 namespace Battleship.Model
 {
-    internal class GameModel
+    internal class GameModel : EventObserver
     {
         private bool GameOver { get;  set; }
         private const int BOARD_SIZE = 10;
@@ -78,7 +79,12 @@ namespace Battleship.Model
         public void addShot(Player player)
         {
             // Kod który pobiera wejście w formacie A1 lub B2 i przekonwertuj je na współrzędne
-            string coordinates = Console.ReadLine();
+            string? coordinates = Console.ReadLine();
+            if (string.IsNullOrEmpty(coordinates))
+            {
+                Console.WriteLine("Invalid input.");
+                return;
+            }
             Vector2i pos = new Vector2i(coordinates[0] - 'A', coordinates[1] - '1');
             Shot shot = new Shot(pos);
             shots[(int)player].Add(shot);

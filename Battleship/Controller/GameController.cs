@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Battleship.Model;
 using Battleship.View;
+using Battleship.Pattern;
 
 namespace Battleship.Controller
 {
@@ -41,6 +42,21 @@ namespace Battleship.Controller
         {
             buildFleet();
             bool gameover = false;
+
+
+            // Przykładowa rejestracja obserwatorów - jeżeli GameModel zgłosi zdarzenie gameover
+            // za pomocą this.notify("GAME_OVER"), to gameover zmieni się na true
+            // W ten sposób GameController jest informowany o zmianie stanu gry
+            // i może podejmować odpowiednie działania. Ta sama zasada dotyczy się widoku.
+            // Reakcją na zdarzenie jest wywołanie funkcji lambda, która zwraca false jeżeli
+            // ma się powtórzyć, lub true jeśli zdarzenie po jednym wychwyceniu ma zostać usunięte.
+            _model.Connect("GAME_OVER", new Observator.Listener(() => {
+                    gameover = true;
+                    Console.WriteLine("[GameController] GameModel has informed about game over.");
+                return false;
+            }));
+
+
 
             Player currentPlayer = Player.Player1;
             while (!gameover)

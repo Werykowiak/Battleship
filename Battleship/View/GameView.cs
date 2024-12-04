@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Battleship.Model;
-
+using Battleship.Pattern;
 namespace Battleship.View
 {
-    internal class GameView
+    internal class GameView : EventObserver
     {
         public void DisplayBuildInstructions()
         {
