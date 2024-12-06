@@ -4,12 +4,14 @@ namespace Battleship.Pattern
 {
     public class AssetManager
     {
-        private Dictionary<string, string> m_Skins;
+        private Dictionary<Tuple<ShipType, bool>, string> m_Skins;
+        private const int SHIP_TYPES = 4;
+        private const string SKIN_PATH = "Assets/skins.txt";
         private static readonly AssetManager sInstance = new AssetManager();
 
         public AssetManager()
         {
-            m_Skins = new Dictionary<string, string>();
+            m_Skins = new Dictionary<Tuple<ShipType, bool>, string>();
         }
 
         public static AssetManager Instance
@@ -17,18 +19,44 @@ namespace Battleship.Pattern
             get { return sInstance; }
         }
 
-        public string GetSkin(string filename)
+        public string GetSkin(ShipType type, bool custom = false)
         {
-            if (m_Skins.TryGetValue(filename, out var skin))
+            if (m_Skins.TryGetValue(Tuple.Create(type, custom), out var skin))
                 return skin;
-            else
-                throw new KeyNotFoundException($"Skin '{filename}' not found.");
+            
+            return AddSkin(type, custom);
         }
 
-        public void AddSkin(string filename, string skin)
+        private string AddSkin(ShipType type, bool custom = false)
         {
-            if (!m_Skins.ContainsKey(filename))
-                m_Skins[filename] = skin;
+            // Statki domyślne będą w liniach [0,3], a statki użytkownika w liniach [4,7]
+            int lineNumber = ((custom ? 1 : 0) * SHIP_TYPES)  + ((int)type - 2);
+
+            try
+            {
+                int currentLine = 0;
+
+                foreach (var line in File.ReadLines(SKIN_PATH))
+                {
+                    if (currentLine == lineNumber)
+                    {
+                        m_Skins.Add(Tuple.Create(type, custom), line);
+                        return line;
+                    }
+
+                    currentLine++;
+                }
+            }
+            catch (FileNotFoundException)
+            {
+                Console.WriteLine("The file was not found.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred: {ex.Message}");
+            }
+
+            return "";
         }
     }
 }

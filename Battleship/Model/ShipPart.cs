@@ -10,10 +10,12 @@ namespace Battleship.Model
     {
         private Vector2i position { get; set; }
         private bool hit { get; set; }
+        private char representation { get; set; }
 
-        public ShipPart(int x, int y)
+        public ShipPart(int x, int y, char representation = '%')
         {
             position = new Vector2i(x, y);
+            this.representation = representation;
             hit = false;
         }
 
@@ -37,12 +39,21 @@ namespace Battleship.Model
             return position;
         }
 
+        public void setPosition(Vector2i position)
+        {
+            this.position = position;
+        }
+
         public void display()
         {
             if (hit)
                 Console.Write("X");
             else
-                Console.Write("#");
+                Console.Write(representation);
+        }
+        public ShipPart clone()
+        {
+            return new ShipPart(position.x, position.y);
         }
     }
 }

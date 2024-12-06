@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Battleship.Pattern;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,6 +14,7 @@ namespace Battleship.Model
         private int MAX_3_SHIPS = 3;
 
         private List<ShipPart> parts = new List<ShipPart>();
+        private AssetManager assetManager = AssetManager.Instance;
 
         private bool ValidateCount(int length, ShipFleet fleet)
         {
@@ -52,8 +54,10 @@ namespace Battleship.Model
                 if (ValidateOverlap(pos1, pos2, fleet) == false)
                     return false;
 
-                for (int i = pos1.y; i <= pos2.y; i++)
-                    parts.Add(new ShipPart(pos1.x, i));
+                // Tutaj zakładamy że akurat wczytujemy statki gracza, więc custom = true
+                string skin = AssetManager.Instance.GetSkin((ShipType)(pos2.y - pos1.y + 1), true);
+                for (int i = pos1.y, c = 0; i <= pos2.y; i++, c++)
+                    parts.Add(new ShipPart(pos1.x, i, skin[c]));
             }
             else if (pos1.y == pos2.y) // Horizontal
             {
@@ -70,8 +74,10 @@ namespace Battleship.Model
                 if (ValidateOverlap(pos1, pos2, fleet) == false)
                     return false;
 
-                for (int i = pos1.x; i <= pos2.x; i++)
-                    parts.Add(new ShipPart(i, pos1.y));
+                // Tutaj zakładamy że akurat wczytujemy statki gracza, więc custom = true
+                string skin = AssetManager.Instance.GetSkin((ShipType)(pos2.x - pos1.x + 1), true);
+                for (int i = pos1.x, c = 0; i <= pos2.x; i++, c++)
+                    parts.Add(new ShipPart(i, pos1.y, skin[c]));
             }
             else
                 return false;

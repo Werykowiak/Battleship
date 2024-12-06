@@ -53,5 +53,15 @@ namespace Battleship.Model
         {
             return parts;
         }
+
+        public Ship clone()
+        {
+            List<ShipPart> newParts = new List<ShipPart>();
+            foreach (ShipPart part in parts)
+            {
+                newParts.Add(part.clone());
+            }
+            return new Ship(newParts);
+        }
     }
 }
