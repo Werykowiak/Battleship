@@ -15,7 +15,7 @@ namespace Battleship.Model
         private int currentShipCount = 0;
         private List<ShipFleet> shipFleets = new List<ShipFleet>(2);
         private List<List<Shot>> shots = new List<List<Shot>>(2);
-        private ShipBuilder builder = new ShipBuilder();
+        private ShipBuilder shipBuilder = new ShipBuilder();
 
         public GameModel()
         {
@@ -34,35 +34,68 @@ namespace Battleship.Model
 
         }
 
-        public bool addShipToFleet(Player player)
-        {
-            // Kod który pobiera wejście w formacie A1:A4 lub B2:D2 i przekonwertuj je na współrzędne
-            string coordinates = Console.ReadLine();
-            string[] coordinatesArray = coordinates.Split(':');
 
-            if (coordinatesArray.Length != 2)
+        public bool addShipToFleet(Player player, int option)
+        {
+            int length = 0;
+            switch (option)
+            {
+                case 1:
+                    length = 5;
+                    break;
+                case 2:
+                    length = 4;
+                    break;
+                case 3:
+                    length = 3;
+                    break;
+            }
+
+            // Get the input in the format B2, C3, or F5
+            Console.WriteLine("Enter the ship's position (e.g., B2):");
+            string input = Console.ReadLine();
+
+            // Validate the input
+            if (string.IsNullOrWhiteSpace(input) || input.Length < 2)
             {
                 Console.WriteLine("Invalid input.");
                 return false;
             }
 
-            Vector2i pos1 = new Vector2i(coordinatesArray[0][0] - 'A', coordinatesArray[0][1] - '1');
-            Vector2i pos2 = new Vector2i(coordinatesArray[1][0] - 'A', coordinatesArray[1][1] - '1');
-
-            if (builder.AddShip(pos1, pos2, shipFleets[(int)player]) == false)
+            // Split the input into a letter and a number
+            char column = input[0];
+            if (!char.IsLetter(column))
             {
-                //Console.WriteLine("Ship cannot be placed here.");
-                return true;
+                Console.WriteLine("Invalid column. Must be a letter.");
+                return false;
             }
 
-            shipFleets[(int)player].addShip(builder.Build());
-            //Console.WriteLine("Starting position: " + pos1.x + " " + pos1.y);
-            //Console.WriteLine("Ending position: " + pos2.x + " " + pos2.y);
+            if (!int.TryParse(input.Substring(1), out int row))
+            {
+                Console.WriteLine("Invalid row. Must be a number.");
+                return false;
+            }
 
+            // Convert the input into a Vector2i coordinate
+            Vector2i pos1 = new Vector2i(column - 'A', row - 1);
+
+            // Attempt to add the ship using the builder
+            Ship ship = shipBuilder
+                .SetLength(length)
+                .SetOrientation(Orientation.Horizontal)
+                .SetStartPosition(pos1)
+                .Build();
+
+            // Add the ship to the fleet
+            shipFleets[(int)player].addShip(ship);
             currentShipCount++;
 
             if (currentShipCount == SHIP_COUNT)
+            {
+                Console.WriteLine("All ships placed for this player.");
                 return false;
+            }
+
             return true;
         }
 

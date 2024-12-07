@@ -6,7 +6,7 @@ namespace Battleship.Pattern
     {
         private Dictionary<Tuple<ShipType, bool>, string> m_Skins;
         private const int SHIP_TYPES = 4;
-        private const string SKIN_PATH = "Assets/skins.txt";
+        private const string SKIN_PATH = "../../../Assets/skins.txt";
         private static readonly AssetManager sInstance = new AssetManager();
 
         public AssetManager()

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Battleship.Model
 {
-    internal class ShipPart
+    public class ShipPart
     {
         private Vector2i position { get; set; }
         private bool hit { get; set; }

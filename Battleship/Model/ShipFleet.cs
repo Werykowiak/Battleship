@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Battleship.Model
 {
-    internal class ShipFleet
+    public class ShipFleet
     {
         private List<Ship> ships;
 
@@ -55,6 +55,11 @@ namespace Battleship.Model
                 }
             }
             return count;
+        }
+
+        public List<Ship> GetShips()
+        {
+            return ships;
         }
 
         public List<ShipPart> getParts()

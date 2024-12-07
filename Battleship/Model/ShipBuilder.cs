@@ -1,95 +1,85 @@
 ﻿using Battleship.Pattern;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Battleship.Model
 {
-    internal class ShipBuilder
+    public class ShipBuilder
     {
-        private int MAX_5_SHIPS = 1;
-        private int MAX_4_SHIPS = 2;
-        private int MAX_3_SHIPS = 3;
+        private int _length;
+        private Orientation _orientation;
+        private Vector2i _startPosition;
+        private AssetManager _assetManager;
 
-        private List<ShipPart> parts = new List<ShipPart>();
-        private AssetManager assetManager = AssetManager.Instance;
-
-        private bool ValidateCount(int length, ShipFleet fleet)
+        public ShipBuilder()
         {
-            if (length == 5)
-                return fleet.getShipCount(5) < MAX_5_SHIPS;
-            else if (length == 4)
-                return fleet.getShipCount(4) < MAX_4_SHIPS;
-            else if (length == 3)
-                return fleet.getShipCount(3) < MAX_3_SHIPS;
-
-            return false;
+            _assetManager = AssetManager.Instance;
         }
 
-        private bool ValidateOverlap(Vector2i pos1, Vector2i pos2, ShipFleet fleet)
+        // Method to set the ship length
+        public ShipBuilder SetLength(int length)
         {
-            foreach (ShipPart part in fleet.getParts())
-                if (part.getPosition().x >= pos1.x && part.getPosition().x <= pos2.x && part.getPosition().y >= pos1.y && part.getPosition().y <= pos2.y)
-                    return false; // Overlap
-
-            return true; // No overlap
+            _length = length;
+            return this;
         }
 
-        public bool AddShip(Vector2i pos1, Vector2i pos2, ShipFleet fleet)
+        // Method to set the ship orientation
+        public ShipBuilder SetOrientation(Orientation orientation)
         {
-            if (pos1.x == pos2.x) // Vertical
-            {
-                if (pos1.y > pos2.y)
-                {
-                    Vector2i temp = pos1;
-                    pos1 = pos2;
-                    pos2 = temp;
-                }
+            _orientation = orientation;
+            return this;
+        }
 
-                if (ValidateCount(pos2.y - pos1.y + 1, fleet) == false)
-                    return false;
-
-                if (ValidateOverlap(pos1, pos2, fleet) == false)
-                    return false;
-
-                // Tutaj zakładamy że akurat wczytujemy statki gracza, więc custom = true
-                string skin = AssetManager.Instance.GetSkin((ShipType)(pos2.y - pos1.y + 1), true);
-                for (int i = pos1.y, c = 0; i <= pos2.y; i++, c++)
-                    parts.Add(new ShipPart(pos1.x, i, skin[c]));
-            }
-            else if (pos1.y == pos2.y) // Horizontal
-            {
-                if (pos1.x > pos2.x)
-                {
-                    Vector2i temp = pos1;
-                    pos1 = pos2;
-                    pos2 = temp;
-                }
-
-                if (ValidateCount(pos2.x - pos1.x + 1, fleet) == false)
-                    return false;
-
-                if (ValidateOverlap(pos1, pos2, fleet) == false)
-                    return false;
-
-                // Tutaj zakładamy że akurat wczytujemy statki gracza, więc custom = true
-                string skin = AssetManager.Instance.GetSkin((ShipType)(pos2.x - pos1.x + 1), true);
-                for (int i = pos1.x, c = 0; i <= pos2.x; i++, c++)
-                    parts.Add(new ShipPart(i, pos1.y, skin[c]));
-            }
-            else
-                return false;
-
-            return true;
+        // Method to set the ship's starting position
+        public ShipBuilder SetStartPosition(Vector2i position)
+        {
+            _startPosition = position;
+            return this;
         }
 
         public Ship Build()
         {
-            Ship ship = new Ship(new List<ShipPart>(parts));
-            parts.Clear();
-            return ship;
+            List<ShipPart> shipParts = new List<ShipPart>();
+
+            // Determine ship type based on length
+            ShipType shipType = (ShipType)_length;
+
+            // Get the skin for the ship (assuming custom = true for player ships)
+            string skin = _assetManager.GetSkin(shipType, true);
+
+            // Create ship parts based on orientation and length
+            for (int i = 0; i < _length; i++)
+            {
+                Vector2i partPosition;
+                char partRepresentation = skin[i];
+
+                if (_orientation == Orientation.Horizontal)
+                {
+                    partPosition = new Vector2i(
+                        _startPosition.x + i,
+                        _startPosition.y
+                    );
+                }
+                else // Vertical orientation
+                {
+                    partPosition = new Vector2i(
+                        _startPosition.x,
+                        _startPosition.y + i
+                    );
+                }
+
+                // Create a ShipPart for each position with the corresponding skin character
+                shipParts.Add(new ShipPart(partPosition.x, partPosition.y, partRepresentation));
+            }
+
+            // Create and return a new Ship with the generated parts
+            return new Ship(shipParts);
         }
+    }
+
+    // Enum for orientation
+    public enum Orientation
+    {
+        Horizontal,
+        Vertical
     }
 }

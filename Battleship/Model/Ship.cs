@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Battleship.Model
 {
-    internal class Ship
+    public class Ship
     {
         private List<ShipPart> parts = new List<ShipPart>();
         private bool sunk = false;

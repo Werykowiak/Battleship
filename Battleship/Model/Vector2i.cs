@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Battleship.Model
 {
-    internal class Vector2i
+    public class Vector2i
     {
         public int x { get; set; }
         public int y { get; set; }

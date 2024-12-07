@@ -26,13 +26,16 @@ namespace Battleship.Controller
 
             for (int i = 0; i < 1; ++i) // 1 zamienić na 2
             {
-                do
-                {
+                int shipType;
+                do {
                     Console.Clear();
                     _view.DisplayMap(_model.getShipFleet(currentPlayer).getParts(), _model.getShots(currentPlayer));
                     _view.DisplayRemainingShipsToPlace(_model.getShipFleet(currentPlayer));
-                    _view.DisplayBuildInstructions();
-                } while (_model.addShipToFleet(currentPlayer));
+                    _view.DisplayBuildInstructions(1);
+                    string input = Console.ReadLine();
+                    int.TryParse(input, out shipType);
+                    _view.DisplayBuildInstructions(2);
+                } while (_model.addShipToFleet(currentPlayer, shipType));
 
                 currentPlayer = Player.Player2;
             }
@@ -42,7 +45,6 @@ namespace Battleship.Controller
         {
             buildFleet();
             bool gameover = false;
-
 
             // Przykładowa rejestracja obserwatorów - jeżeli GameModel zgłosi zdarzenie gameover
             // za pomocą this.notify("GAME_OVER"), to gameover zmieni się na true

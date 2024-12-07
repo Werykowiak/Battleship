@@ -9,17 +9,24 @@ namespace Battleship.View
 {
     internal class GameView : EventObserver
     {
-        public void DisplayBuildInstructions()
+        public void DisplayBuildInstructions(int i)
         {
-            Console.WriteLine("Enter the coordinates of the ship: ");
+            switch(i){
+                case 1:
+                    Console.WriteLine("Choose a ship to place: ");
+                    break;
+                case 2:
+                    Console.WriteLine("Choose where to place it: ");
+                    break;
+            }
         }
 
         public void DisplayRemainingShipsToPlace(ShipFleet fleet)
         {
             Console.WriteLine("Remaining ships to place: ");
-            Console.WriteLine("Remaining 5-length ships: " + (1 - fleet.getShipCount(5)).ToString());
-            Console.WriteLine("Remaining 4-length ships: " + (2 - fleet.getShipCount(4)).ToString());
-            Console.WriteLine("Remaining 3-length ships: " + (3 - fleet.getShipCount(3)).ToString());
+            Console.WriteLine("1. Remaining 5-length ships: " + (1 - fleet.getShipCount(5)).ToString());
+            Console.WriteLine("2. Remaining 4-length ships: " + (2 - fleet.getShipCount(4)).ToString());
+            Console.WriteLine("3. Remaining 3-length ships: " + (3 - fleet.getShipCount(3)).ToString());
             Console.WriteLine("");
         }
 
@@ -58,6 +65,11 @@ namespace Battleship.View
         public void DisplayShotInstructions()
         {
             Console.WriteLine("Enter the coordinates of the shot: ");
+        }
+
+        public ConsoleKey GetInput()
+        {
+            return Console.ReadKey(true).Key;
         }
     }
 }
