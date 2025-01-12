@@ -18,84 +18,49 @@ namespace Battleship.Controller
         {
             _model = model;
             _view = view;
-        }
+            
+            // Subscribe to model events
+            _model.Connect("GAME_OVER", new Observator.Listener(() => {
+                Console.WriteLine("[GameController] GameModel has informed about game over.");
+                return false;
+            }));
 
-        private void buildFleet()
-        {
-            Player currentPlayer = Player.Player1;
+            _model.Connect("UPDATE_FLEET_VIEW", new Observator.Listener(() => {
+                _view.DisplayMap(_model.getShipFleet(_model.CurrentPlayer).getParts(), _model.getShots(_model.CurrentPlayer));
+                _view.DisplayRemainingShipsToPlace(_model.getShipFleet(_model.CurrentPlayer));
+                _view.DisplayCurrentPlayer(_model.CurrentPlayer.name);
+                return false;
+            }));
 
-            for (int i = 0; i < 1; ++i) // testing 1 player
-            {
-                int shipType;
-                Ship ship = null;
+            _model.Connect("DISPLAY_BUILD_INSTRUCTIONS", new Observator.Listener(() => {
+                _view.DisplayBuildInstructions(1);
+                return false;
+            }));
 
-                do
-                {
-                    Console.Clear();
-                    _view.DisplayMap(_model.getShipFleet(currentPlayer).getParts(), _model.getShots(currentPlayer));
-                    _view.DisplayRemainingShipsToPlace(_model.getShipFleet(currentPlayer));
-                    _view.DisplayBuildInstructions(1);
-                    string input = Console.ReadLine();
-                    if (!int.TryParse(input, out shipType) || shipType < 1 || shipType > 3)
-                    {
-                        continue;
-                    }
+            _model.Connect("UPDATE_BUILDER_VIEW", new Observator.Listener(() => {
+                _view.DisplayBuilderMap(_model.getShipFleet(_model.CurrentPlayer).getParts(), _model.getCurrentPlaceholderShip());
+                _view.DisplayCurrentPlayer(_model.CurrentPlayer.name);
+                return false;
+            }));
 
-                    while (true)
-                    {
-                        Console.Clear();
-                        _view.DisplayBuilderMap(_model.getShipFleet(currentPlayer).getParts(), ship);
-                        ship = _model.choosePlacement(currentPlayer, shipType);
-                        if (ship == null) // if returned ship is a null then we are done with placing it
-                        {
-                            break;
-                        }
-                    }
-
-                } while (!_model.getShipFleet(currentPlayer).isComplete());
-
-                currentPlayer = Player.Player2;
-            }
+            _model.Connect("DISPLAY_SHOT_INSTRUCTIONS", new Observator.Listener(() => {
+                _view.DisplayShotInstructions();
+                return false;
+            }));
         }
 
         public void Run()
         {
-            buildFleet();
-            bool gameover = false;
-
-            // Przykładowa rejestracja obserwatorów - jeżeli GameModel zgłosi zdarzenie gameover
-            // za pomocą this.notify("GAME_OVER"), to gameover zmieni się na true
-            // W ten sposób GameController jest informowany o zmianie stanu gry
-            // i może podejmować odpowiednie działania. Ta sama zasada dotyczy się widoku.
-            // Reakcją na zdarzenie jest wywołanie funkcji lambda, która zwraca false jeżeli
-            // ma się powtórzyć, lub true jeśli zdarzenie po jednym wychwyceniu ma zostać usunięte.
-            _model.Connect("GAME_OVER", new Observator.Listener(() => {
-                    gameover = true;
-                    Console.WriteLine("[GameController] GameModel has informed about game over.");
-                return false;
-            }));
-
-
-
-            Player currentPlayer = Player.Player1;
-            while (!gameover)
+            _model.BuildFleets();
+            
+            while (!_model.GameOver)
             {
                 Console.Clear();
-                _view.DisplayMap(_model.getShipFleet(currentPlayer).getParts(), _model.getShots(currentPlayer));
+                _view.DisplayMap(_model.getShipFleet(_model.CurrentPlayer).getParts(), _model.getShots(_model.CurrentPlayer));
                 _view.DisplayShotInstructions();
-                _model.addShot(currentPlayer);
+                _model.addShot(_model.CurrentPlayer);
+                _model.nextTurn();
             }
-            // _view.DisplayInstructions();
-
-            //while (!_model.GameOver)
-            //{
-            //    _view.DisplayBoard(_model.Board);
-            //    _view.DisplayShotResult(_model.LastShotResult);
-            //    _model.TakeTurn();
-            //}
-
-            //_view.DisplayBoard(_model.Board);
-            //_view.DisplayGameOverMessage();
         }
     }
 }

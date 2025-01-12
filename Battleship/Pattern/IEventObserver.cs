@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Battleship.Pattern
 {
-    internal interface IEventObserver
+    public interface IEventObserver
     {
         public void Disconnect(int id);
         public void Notify();

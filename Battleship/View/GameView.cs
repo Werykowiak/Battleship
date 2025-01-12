@@ -108,5 +108,15 @@ namespace Battleship.View
         {
             return Console.ReadKey(true).Key;
         }
+
+        public void DisplayCurrentPlayer(string playerName)
+        {
+            (int left, int top) = Console.GetCursorPosition();
+            
+            Console.SetCursorPosition(Console.WindowWidth - playerName.Length - 15, 0);
+            Console.Write("Tura gracza: " + playerName);
+            
+            Console.SetCursorPosition(left, top);
+        }
     }
 }

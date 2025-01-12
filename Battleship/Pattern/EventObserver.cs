@@ -2,7 +2,7 @@
 
 namespace Battleship.Pattern
 {
-   internal class EventObserver : Observator, IEventObserver
+   public class EventObserver : Observator, IEventObserver
     {
         public int Connect(string evt, Observator.Listener observer)
         {

@@ -6,19 +6,16 @@ using System.Threading.Tasks;
 
 namespace Battleship.Model
 {
-    internal class Shot
+    public class Shot
     {
-        private Vector2i position { get; set; }
+        private Vector2i position;
 
-        public Shot(Vector2i position)
+        public Shot(Vector2i pos)
         {
-            this.position = position;
+            position = pos;
         }
 
-        public Vector2i getPosition()
-        {
-            return position;
-        }
+        public Vector2i getPosition() => position;
 
         public void display()
         {

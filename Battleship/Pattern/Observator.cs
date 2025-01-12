@@ -1,6 +1,6 @@
 ﻿namespace Battleship.Pattern
 {
-    internal class Observator
+    public class Observator
     {
         public delegate bool Listener();
 
