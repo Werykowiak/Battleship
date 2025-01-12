@@ -26,18 +26,20 @@ namespace Battleship.Model
             shots.Add(new List<Shot>());
 
             // Przykładowe strzały
+            /*
             shots[(int)Player.Player1].Add(new Shot(new Vector2i(0, 0)));
             shots[(int)Player.Player1].Add(new Shot(new Vector2i(7, 9)));
             shots[(int)Player.Player1].Add(new Shot(new Vector2i(5, 4)));
             shots[(int)Player.Player1].Add(new Shot(new Vector2i(1, 5)));
             shots[(int)Player.Player1].Add(new Shot(new Vector2i(3, 2)));
+            */
 
         }
-
 
         public bool addShipToFleet(Player player, int option)
         {
             int length = 0;
+            Orientation orientation = Orientation.Horizontal; // Default orientation
             switch (option)
             {
                 case 1:
@@ -51,7 +53,28 @@ namespace Battleship.Model
                     break;
             }
 
-            // Get the input in the format B2, C3, or F5
+            Console.WriteLine("Enter the ship's position (e.g., B2):");
+            Console.WriteLine("Press 'r' to rotate the ship (before entering position)");
+
+            // Listen for rotation key before getting position
+            while (true)
+            {
+                if (Console.KeyAvailable)
+                {
+                    ConsoleKeyInfo keyInfo = Console.ReadKey(true);
+                    if (keyInfo.Key == ConsoleKey.R)
+                    {
+                        orientation = orientation == Orientation.Horizontal ?
+                            Orientation.Vertical : Orientation.Horizontal;
+                        Console.WriteLine($"Ship orientation changed to: {orientation}");
+                    }
+                    else if (keyInfo.Key == ConsoleKey.Enter)
+                    {
+                        break;
+                    }
+                }
+            }
+
             Console.WriteLine("Enter the ship's position (e.g., B2):");
             string input = Console.ReadLine();
 
@@ -79,23 +102,21 @@ namespace Battleship.Model
             // Convert the input into a Vector2i coordinate
             Vector2i pos1 = new Vector2i(column - 'A', row - 1);
 
-            // Attempt to add the ship using the builder
+            // Modified ship building to use the orientation
             Ship ship = shipBuilder
                 .SetLength(length)
-                .SetOrientation(Orientation.Horizontal)
+                .SetOrientation(orientation)  // Use the selected orientation
                 .SetStartPosition(pos1)
                 .Build();
 
             // Add the ship to the fleet
             shipFleets[(int)player].addShip(ship);
             currentShipCount++;
-
             if (currentShipCount == SHIP_COUNT)
             {
                 Console.WriteLine("All ships placed for this player.");
                 return false;
             }
-
             return true;
         }
 
