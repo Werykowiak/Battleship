@@ -24,18 +24,35 @@ namespace Battleship.Controller
         {
             Player currentPlayer = Player.Player1;
 
-            for (int i = 0; i < 1; ++i) // 1 zamienić na 2
+            for (int i = 0; i < 1; ++i) // testing 1 player
             {
                 int shipType;
-                do {
+                Ship ship = null;
+
+                do
+                {
                     Console.Clear();
                     _view.DisplayMap(_model.getShipFleet(currentPlayer).getParts(), _model.getShots(currentPlayer));
                     _view.DisplayRemainingShipsToPlace(_model.getShipFleet(currentPlayer));
                     _view.DisplayBuildInstructions(1);
                     string input = Console.ReadLine();
-                    int.TryParse(input, out shipType);
-                    _view.DisplayBuildInstructions(2);
-                } while (_model.addShipToFleet(currentPlayer, shipType));
+                    if (!int.TryParse(input, out shipType) || shipType < 1 || shipType > 3)
+                    {
+                        continue;
+                    }
+
+                    while (true)
+                    {
+                        Console.Clear();
+                        _view.DisplayBuilderMap(_model.getShipFleet(currentPlayer).getParts(), ship);
+                        ship = _model.choosePlacement(currentPlayer, shipType);
+                        if (ship == null) // if returned ship is a null then we are done with placing it
+                        {
+                            break;
+                        }
+                    }
+
+                } while (!_model.getShipFleet(currentPlayer).isComplete());
 
                 currentPlayer = Player.Player2;
             }

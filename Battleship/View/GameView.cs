@@ -62,6 +62,43 @@ namespace Battleship.View
             Console.SetCursorPosition(endLeft, endTop);
         }
 
+        public void DisplayBuilderMap(List<ShipPart> shipParts, Ship? placeholderShip)
+        {
+            Console.WriteLine("      A    B    C    D    E    F    G    H    I    J   ");
+
+            for (int i = 1; i <= 10; i++)
+            {
+                Console.Write($"{i,2}    ");
+                for (int j = 0; j < 10; j++)
+                    Console.Write("     ");
+
+                Console.WriteLine();
+                Console.WriteLine();
+            }
+
+            int endTop = Console.GetCursorPosition().Top;
+            int endLeft = Console.GetCursorPosition().Left;
+
+            // rozstawienie juz postawionych statkow
+            foreach (ShipPart part in shipParts)
+            {
+                Console.SetCursorPosition(part.getPosition().x * 5 + 6, part.getPosition().y * 2 + 1);
+                part.display();
+            }
+
+            // rozstawienie placeholdera uzytkownika
+            if (placeholderShip != null)
+            {
+                foreach (ShipPart part in placeholderShip.getParts())
+                {
+                    Console.SetCursorPosition(part.getPosition().x * 5 + 6, part.getPosition().y * 2 + 1);
+                    part.display();
+                }
+            }
+
+            Console.SetCursorPosition(endLeft, endTop);
+        }
+
         public void DisplayShotInstructions()
         {
             Console.WriteLine("Enter the coordinates of the shot: ");

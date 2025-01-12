@@ -16,6 +16,8 @@ namespace Battleship.Model
         private List<ShipFleet> shipFleets = new List<ShipFleet>(2);
         private List<List<Shot>> shots = new List<List<Shot>>(2);
         private ShipBuilder shipBuilder = new ShipBuilder();
+        Vector2i position = new Vector2i(0, 0);
+                    Orientation orientation = Orientation.Horizontal;
 
         public GameModel()
         {
@@ -36,7 +38,7 @@ namespace Battleship.Model
 
         }
 
-        public bool addShipToFleet(Player player, int option)
+        public Ship addShipToFleet(Player player, int option)
         {
             int length = 0;
             Orientation orientation = Orientation.Horizontal; // Default orientation
@@ -82,7 +84,7 @@ namespace Battleship.Model
             if (string.IsNullOrWhiteSpace(input) || input.Length < 2)
             {
                 Console.WriteLine("Invalid input.");
-                return false;
+                return null;
             }
 
             // Split the input into a letter and a number
@@ -90,22 +92,21 @@ namespace Battleship.Model
             if (!char.IsLetter(column))
             {
                 Console.WriteLine("Invalid column. Must be a letter.");
-                return false;
+                return null;
             }
 
             if (!int.TryParse(input.Substring(1), out int row))
             {
                 Console.WriteLine("Invalid row. Must be a number.");
-                return false;
+                return null;
             }
 
             // Convert the input into a Vector2i coordinate
             Vector2i pos1 = new Vector2i(column - 'A', row - 1);
 
-            // Modified ship building to use the orientation
             Ship ship = shipBuilder
                 .SetLength(length)
-                .SetOrientation(orientation)  // Use the selected orientation
+                .SetOrientation(orientation)
                 .SetStartPosition(pos1)
                 .Build();
 
@@ -115,8 +116,148 @@ namespace Battleship.Model
             if (currentShipCount == SHIP_COUNT)
             {
                 Console.WriteLine("All ships placed for this player.");
-                return false;
+                return null;
             }
+            return ship;
+        }
+
+        public Ship choosePlacement(Player player, int option)
+        {
+            int length = 0;
+            switch (option)
+            {
+                case 1: length = 5; break;
+                case 2: length = 4; break;
+                case 3: length = 3; break;
+                default: return null;
+            }
+
+            // ship placeholder
+            Ship placeholderShip = shipBuilder
+                .SetLength(length)
+                .SetOrientation(orientation)
+                .SetStartPosition(position)
+                .Build();
+
+            while (true)
+            {
+                ConsoleKeyInfo keyInfo = Console.ReadKey(true);
+
+                // movement and rotation
+                switch (keyInfo.Key)
+                {
+                    case ConsoleKey.W:
+                        if (position.y > 0)
+                            position.y--;
+                        break;
+                    case ConsoleKey.S:
+                        if (orientation == Orientation.Vertical)
+                        {
+                            if (position.y < 10 - length)
+                                position.y++;
+                        }
+                        else
+                        {
+                            if (position.y < 9)
+                                position.y++;
+                        }
+                        break;
+                    case ConsoleKey.A:
+                        if (position.x > 0)
+                            position.x--;
+                        break;
+                    case ConsoleKey.D:
+                        if (orientation == Orientation.Horizontal)
+                        {
+                            if (position.x < 10 - length)
+                                position.x++;
+                        }
+                        else
+                        {
+                            if (position.x < 9)
+                                position.x++;
+                        }
+                        break;
+                    case ConsoleKey.R:
+                        orientation = orientation == Orientation.Horizontal ?
+                            Orientation.Vertical : Orientation.Horizontal;
+                        break;
+                    case ConsoleKey.Enter: // trying to create a ship at the current position
+
+                        Ship finalShip = shipBuilder
+                            .SetLength(length)
+                            .SetOrientation(orientation)
+                            .SetStartPosition(position)
+                            .Build();
+
+                        // add the ship to the fleet if it's a valid placement
+                        if (IsValidPlacement(finalShip, player))
+                        {
+                            shipFleets[(int)player].addShip(finalShip);
+                            position.x = 0;
+                            position.y = 0;
+                            return null;
+                        }
+                        return finalShip;
+                }
+
+                // update placeholder ship position
+                placeholderShip = shipBuilder
+                    .SetLength(length)
+                    .SetOrientation(orientation)
+                    .SetStartPosition(position)
+                    .Build();
+
+                return placeholderShip;
+            }
+        }
+
+        private bool IsValidPlacement(Ship ship, Player player)
+        {
+            Vector2i startPos = ship.getParts()[0].getPosition();
+            int length = ship.getParts().Count;
+
+            // check bounds
+            if (!IsWithinBounds(startPos, length, orientation))
+                return false;
+
+            // check for collisions with other ships
+            foreach (ShipPart newPart in ship.getParts())
+            {
+                foreach (Ship existingShip in shipFleets[(int)player].GetShips())
+                {
+                    foreach (ShipPart existingPart in existingShip.getParts())
+                    {
+                        if (newPart.getPosition().x == existingPart.getPosition().x &&
+                            newPart.getPosition().y == existingPart.getPosition().y)
+                            return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        private bool IsWithinBounds(Vector2i position, int length, Orientation orientation)
+        {
+            if (position.x < 0 || position.y < 0)
+                return false;
+
+            // check length-dependent bounds
+            if (orientation == Orientation.Horizontal) // hotizontal
+            {
+                if (position.x + length > 10)
+                    return false;
+                if (position.y >= 10)
+                    return false;
+            }
+            else // vertical
+            {
+                if (position.y + length > 10)
+                    return false;
+                if (position.x >= 10)
+                    return false;
+            }
+
             return true;
         }
 

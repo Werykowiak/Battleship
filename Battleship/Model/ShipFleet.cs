@@ -71,5 +71,12 @@ namespace Battleship.Model
             }
             return parts;
         }
+
+        public bool isComplete()
+        {
+            return getShipCount(5) >= 1 &&
+                   getShipCount(4) >= 2 &&
+                   getShipCount(3) >= 3;
+        }
     }
 }
