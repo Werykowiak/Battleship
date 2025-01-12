@@ -9,50 +9,14 @@ namespace Battleship.Model
 {
     public class GameModel : EventObserver
     {
-        private Player player1 = new Player("Pierwszy");
-        private Player player2 = new Player("Drugi");
+        public Player player1 = new Player("Pierwszy");
+        public Player player2 = new Player("Drugi");
         public Player CurrentPlayer { get; private set; }
         public bool GameOver { get; private set; }
 
         public GameModel()
         {
             GameOver = false;
-            CurrentPlayer = player1;
-
-            player1.Connect("UPDATE_FLEET_VIEW", new Observator.Listener(() => {
-                this.Notify("UPDATE_FLEET_VIEW");
-                return false;
-            }));
-            player1.Connect("UPDATE_BUILDER_VIEW", new Observator.Listener(() => {
-                this.Notify("UPDATE_BUILDER_VIEW");
-                return false;
-            }));
-            player1.Connect("DISPLAY_BUILD_INSTRUCTIONS", new Observator.Listener(() =>
-            {
-                this.Notify("DISPLAY_BUILD_INSTRUCTIONS");
-                return false;
-            }));
-
-            player2.Connect("UPDATE_FLEET_VIEW", new Observator.Listener(() => {
-                this.Notify("UPDATE_FLEET_VIEW");
-                return false;
-            }));
-            player2.Connect("UPDATE_BUILDER_VIEW", new Observator.Listener(() => {
-                this.Notify("UPDATE_BUILDER_VIEW");
-                return false;
-            }));
-            player2.Connect("DISPLAY_BUILD_INSTRUCTIONS", new Observator.Listener(() => {
-                this.Notify("DISPLAY_BUILD_INSTRUCTIONS");
-                return false;
-            }));
-        }
-
-        public void BuildFleets()
-        {
-            CurrentPlayer = player1;
-            player1.BuildFleet();
-            CurrentPlayer = player2;
-            player2.BuildFleet();
             CurrentPlayer = player1;
         }
 
@@ -71,20 +35,36 @@ namespace Battleship.Model
             return CurrentPlayer.CurrentPlaceholderShip;
         }
 
-        public void addShot(Player player)
+        public bool addShot(Player player)
         {
             string? coordinates = Console.ReadLine();
-            if (string.IsNullOrEmpty(coordinates))
+            if (string.IsNullOrEmpty(coordinates) || coordinates.Length < 2)
             {
-                Console.WriteLine("Invalid input.");
-                return;
+                Console.WriteLine("Nieprawidłowe współrzędne. Wprowadź literę (A-J) i cyfrę (1-10).");
+                return false;
             }
-            Vector2i pos = new Vector2i(coordinates[0] - 'A', coordinates[1] - '1');
+
+            if (!char.IsLetter(coordinates[0]) || coordinates[0] < 'A' || coordinates[0] > 'J')
+            {
+                Console.WriteLine("Pierwsza współrzędna musi być literą od A do J.");
+                return false;
+            }
+
+            string numberPart = coordinates.Substring(1);
+            if (!int.TryParse(numberPart, out int number) || number < 1 || number > 10)
+            {
+                Console.WriteLine("Druga współrzędna musi być liczbą od 1 do 10.");
+                return false;
+            }
+
+            Vector2i pos = new Vector2i(coordinates[0] - 'A', number - 1);
             
             if (player == player1)
                 player1.AddShot(pos);
             else
                 player2.AddShot(pos);
+
+            return true;
         }
 
         public void nextTurn()

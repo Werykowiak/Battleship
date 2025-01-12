@@ -24,42 +24,34 @@ namespace Battleship.Controller
                 Console.WriteLine("[GameController] GameModel has informed about game over.");
                 return false;
             }));
-
-            _model.Connect("UPDATE_FLEET_VIEW", new Observator.Listener(() => {
-                _view.DisplayMap(_model.getShipFleet(_model.CurrentPlayer).getParts(), _model.getShots(_model.CurrentPlayer));
-                _view.DisplayRemainingShipsToPlace(_model.getShipFleet(_model.CurrentPlayer));
-                _view.DisplayCurrentPlayer(_model.CurrentPlayer.name);
-                return false;
-            }));
-
-            _model.Connect("DISPLAY_BUILD_INSTRUCTIONS", new Observator.Listener(() => {
-                _view.DisplayBuildInstructions(1);
-                return false;
-            }));
-
-            _model.Connect("UPDATE_BUILDER_VIEW", new Observator.Listener(() => {
-                _view.DisplayBuilderMap(_model.getShipFleet(_model.CurrentPlayer).getParts(), _model.getCurrentPlaceholderShip());
-                _view.DisplayCurrentPlayer(_model.CurrentPlayer.name);
-                return false;
-            }));
-
-            _model.Connect("DISPLAY_SHOT_INSTRUCTIONS", new Observator.Listener(() => {
-                _view.DisplayShotInstructions();
-                return false;
-            }));
         }
 
         public void Run()
         {
-            _model.BuildFleets();
+            // Rozstawianie floty
+            Console.Clear();
+            _view.BuildFleetForPlayer(_model.player1);
+            _model.nextTurn();
+            Console.Clear();
+            _view.BuildFleetForPlayer(_model.player2);
+            _model.nextTurn();
             
+            // Reszta gry
             while (!_model.GameOver)
             {
                 Console.Clear();
                 _view.DisplayMap(_model.getShipFleet(_model.CurrentPlayer).getParts(), _model.getShots(_model.CurrentPlayer));
                 _view.DisplayShotInstructions();
-                _model.addShot(_model.CurrentPlayer);
-                _model.nextTurn();
+                
+                if (_model.addShot(_model.CurrentPlayer))
+                {
+                    _model.nextTurn();
+                }
+                else
+                {
+                    Console.WriteLine("\nNaciśnij dowolny klawisz, aby spróbować ponownie...");
+                    Console.ReadKey(true);
+                }
             }
         }
     }

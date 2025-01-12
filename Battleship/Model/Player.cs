@@ -19,61 +19,23 @@ namespace Battleship.Model
             this.name = name;
         }
 
-        public void BuildFleet()
+        public bool CanAddShipOfLength(int length)
         {
-            while (!fleet.isComplete())
-            {
-                Console.Clear();
-                this.Notify("UPDATE_FLEET_VIEW");
-                this.Notify("DISPLAY_BUILD_INSTRUCTIONS");
-
-                string? input = Console.ReadLine();
-                if (!int.TryParse(input, out int shipType) || shipType < 1 || shipType > 3)
-                    continue;
-
-                PlaceShip(shipType);
-            }
-        }
-
-        private void PlaceShip(int shipType)
-        {
-            int length = shipType == 1 ? 5 : shipType == 2 ? 4 : 3;
-            
             int currentCount = fleet.getShipCount(length);
             int maxCount = length == 5 ? 1 : length == 4 ? 2 : 3;
-            if (currentCount >= maxCount)
-            {
-                Console.WriteLine($"Cannot add more ships of length {length}. Maximum is {maxCount}.");
-                Console.WriteLine("Press any key to continue...");
-                Console.ReadKey(true);
-                return;
-            }
-
-            position = new Vector2i(0, 0);
-            orientation = Orientation.Horizontal;
-
-            while (true)
-            {
-                Console.Clear();
-                UpdatePlaceholderShip(length);
-
-                ConsoleKeyInfo key = Console.ReadKey(true);
-                if (HandleShipPlacementInput(key, length))
-                    break;
-            }
+            return currentCount < maxCount;
         }
 
-        private void UpdatePlaceholderShip(int length)
+        public void UpdatePlaceholderShip(int length)
         {
             CurrentPlaceholderShip = shipBuilder
                 .SetLength(length)
                 .SetOrientation(orientation)
                 .SetStartPosition(position)
                 .Build();
-            this.Notify("UPDATE_BUILDER_VIEW");
         }
 
-        private bool HandleShipPlacementInput(ConsoleKeyInfo key, int length)
+        public bool HandleShipPlacementInput(ConsoleKeyInfo key, int length)
         {
             switch (key.Key)
             {
