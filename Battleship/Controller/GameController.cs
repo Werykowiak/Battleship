@@ -40,7 +40,7 @@ namespace Battleship.Controller
             while (!_model.GameOver)
             {
                 Console.Clear();
-                _view.DisplayMap(_model.getShipFleet(_model.CurrentPlayer).getParts(), _model.getShots(_model.CurrentPlayer));
+                _view.DisplayMap(_model.getShipFleet(_model.CurrentPlayer).getParts(), _model.getShots(_model.CurrentPlayer), _model.CurrentPlayer);
                 _view.DisplayShotInstructions();
                 
                 if (_model.addShot(_model.CurrentPlayer))

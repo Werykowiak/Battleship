@@ -30,10 +30,10 @@ namespace Battleship.View
             Console.WriteLine("");
         }
 
-        public void DisplayMap(List<ShipPart> shipParts, List<Shot> firedShots)
+        public void DisplayMap(List<ShipPart> shipParts, List<Shot> firedShots, Player player)
         {
             DrawBaseGrid();
-            DisplayShipParts(shipParts);
+            //DisplayShipParts(shipParts);
             
             (int left, int top) = Console.GetCursorPosition();
             
@@ -42,8 +42,9 @@ namespace Battleship.View
                 Console.SetCursorPosition(shot.getPosition().x * 5 + 6, shot.getPosition().y * 2 + 1);
                 shot.display();
             }
-            
+
             Console.SetCursorPosition(0, 22);
+            DisplayCurrentPlayer(player.name);
         }
 
         public void DisplayBuilderMap(List<ShipPart> shipParts, Ship? placeholderShip)
@@ -55,7 +56,8 @@ namespace Battleship.View
             {
                 DisplayShipParts(placeholderShip.getParts());
             }
-        }
+        }   
+
 
         private void DrawBaseGrid()
         {
