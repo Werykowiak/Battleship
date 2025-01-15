@@ -2,28 +2,122 @@ using Battleship.Pattern;
 
 namespace Battleship.Model
 {
-    public class Player : EventObserver
+    public interface IPlayer : IEventObserver
     {
-        public string name;
-        private ShipFleet fleet = new ShipFleet();
-        private List<Shot> shots = new List<Shot>();
-        private ShipBuilder shipBuilder = new ShipBuilder();
-        private Vector2i position = new Vector2i(0, 0);
-        private Orientation orientation = Orientation.Horizontal;
-        private const int BOARD_SIZE = 10;
+        string name { get; }
+        Ship? CurrentPlaceholderShip { get; }
+        ShipFleet GetFleet();
+        List<Shot> GetShots();
+        void AddShot(Vector2i pos);
+        void BuildFleet(Action<List<ShipPart>, Ship?> displayCallback);
+        bool CanAddShipOfLength(int length);
+    }
 
-        public Ship? CurrentPlaceholderShip { get; private set; }
+    public abstract class BasePlayer : EventObserver, IPlayer
+    {
+        public string name { get; protected set; }
+        public Ship? CurrentPlaceholderShip { get; protected set; }
+        protected ShipFleet fleet = new ShipFleet();
+        protected List<Shot> shots = new List<Shot>();
+        protected ShipBuilder shipBuilder = new ShipBuilder();
+        protected Vector2i position = new Vector2i(0, 0);
+        protected Orientation orientation = Orientation.Horizontal;
+        protected const int BOARD_SIZE = 10;
 
-        public Player(string name)
+        public BasePlayer(string name)
         {
             this.name = name;
         }
+
+        public ShipFleet GetFleet() => fleet;
+        public List<Shot> GetShots() => shots;
+        public void AddShot(Vector2i pos) => shots.Add(new Shot(pos));
 
         public bool CanAddShipOfLength(int length)
         {
             int currentCount = fleet.getShipCount(length);
             int maxCount = length == 5 ? 1 : length == 4 ? 2 : 3;
             return currentCount < maxCount;
+        }
+
+        protected bool IsValidPlacement(Ship ship)
+        {
+            Vector2i startPos = ship.getParts()[0].getPosition();
+            int length = ship.getParts().Count;
+
+            if (!IsWithinBounds(startPos, length, orientation))
+                return false;
+
+            foreach (ShipPart newPart in ship.getParts())
+            {
+                foreach (Ship existingShip in fleet.GetShips())
+                {
+                    foreach (ShipPart existingPart in existingShip.getParts())
+                    {
+                        if (newPart.getPosition().x == existingPart.getPosition().x &&
+                            newPart.getPosition().y == existingPart.getPosition().y)
+                            return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        protected bool IsWithinBounds(Vector2i position, int length, Orientation orientation)
+        {
+            if (position.x < 0 || position.y < 0)
+                return false;
+
+            if (orientation == Orientation.Horizontal)
+                return position.x + length <= BOARD_SIZE && position.y < BOARD_SIZE;
+            else
+                return position.y + length <= BOARD_SIZE && position.x < BOARD_SIZE;
+        }
+
+        public abstract void BuildFleet(Action<List<ShipPart>, Ship?> displayCallback);
+    }
+
+    public class Player : BasePlayer
+    {
+        public Player(string name) : base(name) { }
+
+        public override void BuildFleet(Action<List<ShipPart>, Ship?> displayCallback)
+        {
+            while (!fleet.isComplete())
+            {
+                displayCallback(fleet.getParts(), CurrentPlaceholderShip);
+                ConsoleKeyInfo input = Console.ReadKey(true);
+                HandleFleetBuilding(input);
+            }
+        }
+
+        private bool HandleFleetBuilding(ConsoleKeyInfo input)
+        {
+            if (CurrentPlaceholderShip == null)
+            {
+                if (!int.TryParse(input.KeyChar.ToString(), out int shipType) || shipType < 1 || shipType > 3)
+                    return false;
+
+                int length = shipType == 1 ? 5 : shipType == 2 ? 4 : 3;
+                
+                if (!CanAddShipOfLength(length))
+                    return false;
+
+                if (input.Key != ConsoleKey.Enter)
+                {
+                    UpdatePlaceholderShip(length);
+                    return false;
+                }
+            }
+            
+            int currentLength = CurrentPlaceholderShip?.getParts().Count ?? 0;
+            if (HandleShipPlacementInput(input, currentLength))
+            {
+                CurrentPlaceholderShip = null;
+                return false;
+            }
+
+            return false;
         }
 
         public void UpdatePlaceholderShip(int length)
@@ -37,23 +131,40 @@ namespace Battleship.Model
 
         public bool HandleShipPlacementInput(ConsoleKeyInfo key, int length)
         {
+            bool moved = false;
+            
             switch (key.Key)
             {
                 case ConsoleKey.W when position.y > 0:
-                    position.y--; break;
+                    position.y--;
+                    moved = true;
+                    break;
                 case ConsoleKey.S when CanMoveDown(length):
-                    position.y++; break;
+                    position.y++;
+                    moved = true;
+                    break;
                 case ConsoleKey.A when position.x > 0:
-                    position.x--; break;
+                    position.x--;
+                    moved = true;
+                    break;
                 case ConsoleKey.D when CanMoveRight(length):
-                    position.x++; break;
+                    position.x++;
+                    moved = true;
+                    break;
                 case ConsoleKey.R:
                     orientation = orientation == Orientation.Horizontal ? 
                         Orientation.Vertical : Orientation.Horizontal;
+                    moved = true;
                     break;
                 case ConsoleKey.Enter:
                     return TryPlaceShip(length);
             }
+
+            if (moved && CurrentPlaceholderShip != null)
+            {
+                UpdatePlaceholderShip(length);
+            }
+
             return false;
         }
 
@@ -82,59 +193,39 @@ namespace Battleship.Model
             position = new Vector2i(0, 0);
             return true;
         }
+    }
 
-        private bool IsValidPlacement(Ship ship)
+    public class AIPlayer : BasePlayer
+    {
+        private Random random = new Random();
+
+        public AIPlayer(string name) : base(name) { }
+
+        public override void BuildFleet(Action<List<ShipPart>, Ship?> displayCallback)
         {
-            Vector2i startPos = ship.getParts()[0].getPosition();
-            int length = ship.getParts().Count;
-
-            if (!IsWithinBounds(startPos, length, orientation))
-                return false;
-
-            foreach (ShipPart newPart in ship.getParts())
+            int[] shipLengths = new[] { 5, 4, 4, 3, 3, 3 };
+            
+            foreach (int length in shipLengths)
             {
-                foreach (Ship existingShip in fleet.GetShips())
+                while (true)
                 {
-                    foreach (ShipPart existingPart in existingShip.getParts())
+                    position = new Vector2i(random.Next(BOARD_SIZE), random.Next(BOARD_SIZE));
+                    orientation = random.Next(2) == 0 ? Orientation.Horizontal : Orientation.Vertical;
+
+                    Ship ship = shipBuilder
+                        .SetLength(length)
+                        .SetOrientation(orientation)
+                        .SetStartPosition(position)
+                        .Build();
+
+                    if (IsValidPlacement(ship))
                     {
-                        if (newPart.getPosition().x == existingPart.getPosition().x &&
-                            newPart.getPosition().y == existingPart.getPosition().y)
-                            return false;
+                        fleet.addShip(ship);
+                        displayCallback(fleet.getParts(), null);
+                        break;
                     }
                 }
             }
-            return true;
         }
-
-        private bool IsWithinBounds(Vector2i position, int length, Orientation orientation)
-        {
-            if (position.x < 0 || position.y < 0)
-                return false;
-
-            if (orientation == Orientation.Horizontal)
-            {
-                if (position.x + length > BOARD_SIZE)
-                    return false;
-                if (position.y >= BOARD_SIZE)
-                    return false;
-            }
-            else
-            {
-                if (position.y + length > BOARD_SIZE)
-                    return false;
-                if (position.x >= BOARD_SIZE)
-                    return false;
-            }
-
-            return true;
-        }
-
-        public void AddShot(Vector2i pos)
-        {
-            shots.Add(new Shot(pos));
-        }
-
-        public ShipFleet GetFleet() => fleet;
-        public List<Shot> GetShots() => shots;
     }
 } 

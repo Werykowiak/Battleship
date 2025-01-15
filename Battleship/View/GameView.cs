@@ -33,7 +33,7 @@ namespace Battleship.View
             Console.WriteLine("");
         }
 
-        public void DisplayMap(List<ShipPart> shipParts, List<Shot> firedShots, Player player)
+        public void DisplayMap(List<ShipPart> shipParts, List<Shot> firedShots, IPlayer player)
         {
             DrawBaseGrid(0);
             foreach (Shot shot in firedShots)
@@ -101,28 +101,29 @@ namespace Battleship.View
         {
             (int left, int top) = Console.GetCursorPosition();
             
-            Console.SetCursorPosition(Console.WindowWidth - playerName.Length - 15, 0);
+            Console.SetCursorPosition(Console.WindowWidth - playerName.Length - 15, 22);
             Console.Write("Tura gracza: " + playerName);
             
             Console.SetCursorPosition(left, top);
         }
 
-        public void BuildFleetForPlayer(Player player)
+        public void BuildFleetForPlayer(IPlayer player)
         {
-            while (!player.GetFleet().isComplete())
-            {
+            player.BuildFleet((shipParts, placeholderShip) => {
                 Console.Clear();
-                DisplayBuilderMap(player.GetFleet().getParts(), player.CurrentPlaceholderShip);
+                DisplayBuilderMap(shipParts, placeholderShip);
                 DisplayCurrentPlayer(player.name);
-                DisplayRemainingShipsToPlace(player.GetFleet());
-                DisplayBuildInstructions(1);
-
-                string? input = Console.ReadLine();
-                if (!int.TryParse(input, out int shipType) || shipType < 1 || shipType > 3)
-                    continue;
-
-                PlaceShipForPlayer(player, shipType);
-            }
+                
+                if (player is Player && placeholderShip == null)
+                {
+                    DisplayRemainingShipsToPlace(player.GetFleet());
+                    DisplayBuildInstructions(1);
+                }
+                else if (player is Player)
+                {
+                    DisplayBuildInstructions(2);
+                }
+            });
         }
 
         public void DisplayShotMessage(int i)
