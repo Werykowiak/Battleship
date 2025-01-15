@@ -11,6 +11,7 @@ namespace Battleship.Model
         void AddShot(Vector2i pos);
         void BuildFleet(Action<List<ShipPart>, Ship?> displayCallback);
         bool CanAddShipOfLength(int length);
+        int AddShot(ShipFleet targetFleet);
     }
 
     public abstract class BasePlayer : EventObserver, IPlayer
@@ -75,6 +76,7 @@ namespace Battleship.Model
         }
 
         public abstract void BuildFleet(Action<List<ShipPart>, Ship?> displayCallback);
+        public abstract int AddShot(ShipFleet targetFleet);
     }
 
     public class Player : BasePlayer
@@ -193,6 +195,35 @@ namespace Battleship.Model
             position = new Vector2i(0, 0);
             return true;
         }
+
+        public override int AddShot(ShipFleet targetFleet)
+        {
+            string? coordinates = Console.ReadLine();
+            if (string.IsNullOrEmpty(coordinates) || coordinates.Length < 2)
+                return 1;
+
+            if (!char.IsLetter(coordinates[0]) || coordinates[0] < 'A' || coordinates[0] > 'J')
+                return 2;
+
+            string numberPart = coordinates.Substring(1);
+            if (!int.TryParse(numberPart, out int number) || number < 1 || number > 10)
+                return 3;
+
+            Vector2i pos = new Vector2i(coordinates[0] - 'A', number - 1);
+            
+            if (shots.Any(shot => shot.getPosition().x == pos.x && shot.getPosition().y == pos.y))
+                return 1;
+
+            shots.Add(new Shot(pos));
+
+            foreach (ShipPart part in targetFleet.getParts())
+            {
+                if (part.Shoot(pos.x, pos.y))
+                    return 0;
+            }
+
+            return 4;
+        }
     }
 
     public class AIPlayer : BasePlayer
@@ -226,6 +257,31 @@ namespace Battleship.Model
                     }
                 }
             }
+        }
+
+        public override int AddShot(ShipFleet targetFleet)
+        {
+            Vector2i pos;
+            bool validShot;
+
+            do
+            {
+                pos = new Vector2i(random.Next(BOARD_SIZE), random.Next(BOARD_SIZE));
+                validShot = !shots.Any(shot => 
+                    shot.getPosition().x == pos.x && 
+                    shot.getPosition().y == pos.y
+                );
+            } while (!validShot);
+
+            shots.Add(new Shot(pos));
+
+            foreach (ShipPart part in targetFleet.getParts())
+            {
+                if (part.Shoot(pos.x, pos.y))
+                    return 0;
+            }
+
+            return 4;
         }
     }
 } 

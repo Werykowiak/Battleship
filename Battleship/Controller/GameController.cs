@@ -37,6 +37,63 @@ namespace Battleship.Controller
             _model.nextTurn(); // dlatego jestesmy znow na 1 graczu
 
             // Reszta gry
+            // PlayerVsPlayerLoop();
+            // PlayerVsComputerLoop();
+            ComputerVsComputerLoop();
+
+            // UWAGA: NA TEN MOMENT W MODELU ZE ZMIANĄ TRYBU ROZGRYWKI (PvsP, PvsC, CvsC) TRZEBA ODPOWIEDNIO PODMIENIĆ KLASY GRACZY (AIPlayer LUB Player)
+        }
+
+        public void PlayerVsPlayerLoop()
+        {
+            while (!_model.GameOver)
+            {
+                Console.Clear();
+                _view.DisplayMap(_model.getShipFleet(_model.CurrentPlayer).getParts(), _model.getShots(_model.CurrentPlayer), _model.CurrentPlayer);
+                _view.DisplayShotInstructions();
+
+                int result = _model.addShot(_model.CurrentPlayer);
+                _view.DisplayShotMessage(result);
+
+                if (result == 4)
+                {
+                    _model.nextTurn();
+                }
+                Console.ReadKey(true);
+            }
+        }
+
+        public void PlayerVsComputerLoop()
+        {
+            while (!_model.GameOver)
+            {
+                Console.Clear();
+                _view.DisplayMap(_model.getShipFleet(_model.CurrentPlayer).getParts(), _model.getShots(_model.CurrentPlayer), _model.CurrentPlayer);
+                _view.DisplayShotInstructions();
+
+                int result = _model.addShot(_model.CurrentPlayer);
+                _view.DisplayShotMessage(result);
+
+                if (result == 4)
+                {
+                    _model.nextTurn();
+
+                    while (!_model.GameOver)
+                    {
+                        result =_model.addShot(_model.CurrentPlayer);
+                        if (result == 4)
+                        {
+                            _model.nextTurn();
+                            break;
+                        }
+                    }
+                }
+                Console.ReadKey(true);
+            }
+        }
+
+        public void ComputerVsComputerLoop()
+        {
             while (!_model.GameOver)
             {
                 Console.Clear();

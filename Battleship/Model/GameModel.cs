@@ -9,7 +9,7 @@ namespace Battleship.Model
 {
     public class GameModel : EventObserver
     {
-        public IPlayer player1 = new Player("Pierwszy");
+        public IPlayer player1 = new AIPlayer("Pierwszy");
         public IPlayer player2 = new AIPlayer("Drugi");
         public IPlayer CurrentPlayer { get; private set; }
         public bool GameOver { get; private set; }
@@ -37,53 +37,19 @@ namespace Battleship.Model
 
         public int addShot(IPlayer player)
         {
-            string? coordinates = Console.ReadLine();
-            if (string.IsNullOrEmpty(coordinates) || coordinates.Length < 2)
+            int result = player.AddShot(player == player1 ? player2.GetFleet() : player1.GetFleet());
+            
+            if (result == 0)
             {
-                return 1;
-            }
-
-            if (!char.IsLetter(coordinates[0]) || coordinates[0] < 'A' || coordinates[0] > 'J')
-            {
-                return 2;
-            }
-
-            string numberPart = coordinates.Substring(1);
-            if (!int.TryParse(numberPart, out int number) || number < 1 || number > 10)
-            {
-                return 3;
-            }
-
-            Vector2i pos = new Vector2i(coordinates[0] - 'A', number - 1);
-
-            if (player == player1)
-            {
-                player1.AddShot(pos);
-
-                List<ShipPart> parts = player2.GetFleet().getParts();
-                foreach (ShipPart part in parts)
+                ShipFleet targetFleet = player == player1 ? player2.GetFleet() : player1.GetFleet();
+                if (targetFleet.IsSunk())
                 {
-                    if (part.Shoot(pos.x, pos.y))
-                    {
-                        return 0;
-                    }
+                    GameOver = true;
+                    Notify("GAME_OVER");
                 }
             }
-            else
-            {
-                player2.AddShot(pos);
-
-                List<ShipPart> parts = player1.GetFleet().getParts();
-                foreach (ShipPart part in parts)
-                {
-                    if (part.Shoot(pos.x, pos.y))
-                    {
-                        return 0;
-                    }
-                }
-            }
-
-            return 4;
+            
+            return result;
         }
 
         public void nextTurn()
