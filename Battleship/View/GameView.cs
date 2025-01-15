@@ -9,6 +9,9 @@ namespace Battleship.View
 {
     internal class GameView : EventObserver
     {
+        private const int MAP_WIDTH = 50;
+        private const int MAP_SPACING = 15;
+
         public void DisplayBuildInstructions(int i)
         {
             switch(i){
@@ -32,16 +35,15 @@ namespace Battleship.View
 
         public void DisplayMap(List<ShipPart> shipParts, List<Shot> firedShots, Player player)
         {
-            DrawBaseGrid();
-            //DisplayShipParts(shipParts);
-            
-            (int left, int top) = Console.GetCursorPosition();
-            
+            DrawBaseGrid(0);
             foreach (Shot shot in firedShots)
             {
-                Console.SetCursorPosition(shot.getPosition().x * 5 + 6, shot.getPosition().y * 2 + 1);
+                Console.SetCursorPosition(shot.getPosition().x * 5 + 6, shot.getPosition().y * 2 + 2);
                 shot.display();
             }
+
+            DrawBaseGrid(MAP_WIDTH + MAP_SPACING);
+            DisplayShipParts(shipParts, MAP_WIDTH + MAP_SPACING);
 
             Console.SetCursorPosition(0, 22);
             DisplayCurrentPlayer(player.name);
@@ -49,41 +51,39 @@ namespace Battleship.View
 
         public void DisplayBuilderMap(List<ShipPart> shipParts, Ship? placeholderShip)
         {
-            DrawBaseGrid();
-            DisplayShipParts(shipParts);
-            
+            DrawBaseGrid(0);
+            DisplayShipParts(shipParts, 0);
+
             if (placeholderShip != null)
             {
-                DisplayShipParts(placeholderShip.getParts());
+                DisplayShipParts(placeholderShip.getParts(), 0);
             }
-        }   
+        }
 
-
-        private void DrawBaseGrid()
+        private void DrawBaseGrid(int leftOffset)
         {
+            Console.SetCursorPosition(leftOffset, 0);
             Console.WriteLine("      A    B    C    D    E    F    G    H    I    J   ");
 
             for (int i = 1; i <= 10; i++)
             {
+                Console.SetCursorPosition(leftOffset, i * 2);
                 Console.Write($"{i,2}    ");
                 for (int j = 0; j < 10; j++)
                     Console.Write("     ");
 
                 Console.WriteLine();
-                Console.WriteLine();
             }
         }
 
-        private void DisplayShipParts(List<ShipPart> parts)
+        private void DisplayShipParts(List<ShipPart> parts, int leftOffset)
         {
             (int left, int top) = Console.GetCursorPosition();
-            
             foreach (ShipPart part in parts)
             {
-                Console.SetCursorPosition(part.getPosition().x * 5 + 6, part.getPosition().y * 2 + 1);
+                Console.SetCursorPosition(part.getPosition().x * 5 + 6 + leftOffset, part.getPosition().y * 2 + 2);
                 part.display();
             }
-            
             Console.SetCursorPosition(left, top);
         }
 
@@ -122,6 +122,33 @@ namespace Battleship.View
                     continue;
 
                 PlaceShipForPlayer(player, shipType);
+            }
+        }
+
+        public void DisplayShotMessage(int i)
+        {
+            switch (i)
+            {
+                case 0:
+                    Console.WriteLine("Trafiony!");
+                    Console.WriteLine("\nNaciśnij dowolny klawisz, aby oddać kolejny strzał.");
+                    break;
+                case 1:
+                    Console.WriteLine("Nieprawidłowe współrzędne. Wprowadź literę (A-J) i cyfrę (1-10).");
+                    Console.WriteLine("\nNaciśnij dowolny klawisz, aby kontynuować.");
+                    break;
+                case 2:
+                    Console.WriteLine("Pierwsza współrzędna musi być literą od A do J.");
+                    Console.WriteLine("\nNaciśnij dowolny klawisz, aby kontynuować.");
+                    break;
+                case 3:
+                    Console.WriteLine("Druga współrzędna musi być liczbą od 1 do 10.");
+                    Console.WriteLine("\nNaciśnij dowolny klawisz, aby kontynuować.");
+                    break;
+                case 4:
+                    Console.WriteLine("Pudło!");
+                    Console.WriteLine("\nNaciśnij dowolny klawisz, aby zmienić turę!");
+                    break;
             }
         }
 

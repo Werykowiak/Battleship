@@ -35,36 +35,55 @@ namespace Battleship.Model
             return CurrentPlayer.CurrentPlaceholderShip;
         }
 
-        public bool addShot(Player player)
+        public int addShot(Player player)
         {
             string? coordinates = Console.ReadLine();
             if (string.IsNullOrEmpty(coordinates) || coordinates.Length < 2)
             {
-                Console.WriteLine("Nieprawidłowe współrzędne. Wprowadź literę (A-J) i cyfrę (1-10).");
-                return false;
+                return 1;
             }
 
             if (!char.IsLetter(coordinates[0]) || coordinates[0] < 'A' || coordinates[0] > 'J')
             {
-                Console.WriteLine("Pierwsza współrzędna musi być literą od A do J.");
-                return false;
+                return 2;
             }
 
             string numberPart = coordinates.Substring(1);
             if (!int.TryParse(numberPart, out int number) || number < 1 || number > 10)
             {
-                Console.WriteLine("Druga współrzędna musi być liczbą od 1 do 10.");
-                return false;
+                return 3;
             }
 
             Vector2i pos = new Vector2i(coordinates[0] - 'A', number - 1);
-            
+
             if (player == player1)
+            {
                 player1.AddShot(pos);
+
+                List<ShipPart> parts = player2.GetFleet().getParts();
+                foreach (ShipPart part in parts)
+                {
+                    if (part.Shoot(pos.x, pos.y))
+                    {
+                        return 0;
+                    }
+                }
+            }
             else
+            {
                 player2.AddShot(pos);
 
-            return true;
+                List<ShipPart> parts = player1.GetFleet().getParts();
+                foreach (ShipPart part in parts)
+                {
+                    if (part.Shoot(pos.x, pos.y))
+                    {
+                        return 0;
+                    }
+                }
+            }
+
+            return 4;
         }
 
         public void nextTurn()
