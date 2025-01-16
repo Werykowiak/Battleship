@@ -9,7 +9,7 @@ namespace Battleship.Model
 {
     public class GameModel : EventObserver
     {
-        public IPlayer player1 = new AIPlayer("Pierwszy");
+        public IPlayer player1 = new Player("Pierwszy");
         public IPlayer player2 = new AIPlayer("Drugi");
         public IPlayer CurrentPlayer { get; private set; }
         public bool GameOver { get; private set; }

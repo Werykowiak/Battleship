@@ -34,7 +34,7 @@ namespace Battleship.Controller
             _model.nextTurn();
             Console.Clear();
             _view.BuildFleetForPlayer(_model.player2);
-            _model.nextTurn(); // dlatego jestesmy znow na 1 graczu
+            _model.nextTurn();
 
             // Reszta gry
             // PlayerVsPlayerLoop();

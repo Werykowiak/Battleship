@@ -1,4 +1,5 @@
 using Battleship.Pattern;
+using System.ComponentModel.Design;
 
 namespace Battleship.Model
 {
@@ -8,7 +9,7 @@ namespace Battleship.Model
         Ship? CurrentPlaceholderShip { get; }
         ShipFleet GetFleet();
         List<Shot> GetShots();
-        void AddShot(Vector2i pos);
+        void AddShot(Vector2i pos, char rep);
         void BuildFleet(Action<List<ShipPart>, Ship?> displayCallback);
         bool CanAddShipOfLength(int length);
         int AddShot(ShipFleet targetFleet);
@@ -32,7 +33,7 @@ namespace Battleship.Model
 
         public ShipFleet GetFleet() => fleet;
         public List<Shot> GetShots() => shots;
-        public void AddShot(Vector2i pos) => shots.Add(new Shot(pos));
+        public void AddShot(Vector2i pos, char rep) => shots.Add(new Shot(pos, rep));
 
         public bool CanAddShipOfLength(int length)
         {
@@ -214,14 +215,15 @@ namespace Battleship.Model
             if (shots.Any(shot => shot.getPosition().x == pos.x && shot.getPosition().y == pos.y))
                 return 1;
 
-            shots.Add(new Shot(pos));
-
             foreach (ShipPart part in targetFleet.getParts())
             {
-                if (part.Shoot(pos.x, pos.y))
+                if (part.Shoot(pos.x, pos.y)){
+                    shots.Add(new Shot(pos, '!'));
                     return 0;
+                }
             }
 
+            shots.Add(new Shot(pos, 'O'));
             return 4;
         }
     }
@@ -273,14 +275,16 @@ namespace Battleship.Model
                 );
             } while (!validShot);
 
-            shots.Add(new Shot(pos));
-
             foreach (ShipPart part in targetFleet.getParts())
             {
                 if (part.Shoot(pos.x, pos.y))
+                {
+                    shots.Add(new Shot(pos, '!'));
                     return 0;
+                }
             }
 
+            shots.Add(new Shot(pos, 'O'));
             return 4;
         }
     }
