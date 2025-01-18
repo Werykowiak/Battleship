@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Xml;
 
 namespace Battleship.Pattern
 {
@@ -8,6 +9,8 @@ namespace Battleship.Pattern
         private const int SHIP_TYPES = 4;
         private const string SKIN_PATH = "../../../Assets/skins.txt";
         private static readonly AssetManager sInstance = new AssetManager();
+
+        public string MapColor = "red";
 
         public AssetManager()
         {
@@ -58,5 +61,6 @@ namespace Battleship.Pattern
 
             return "";
         }
+
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Spectre.Console;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -47,7 +48,7 @@ namespace Battleship.Model
         public void display()
         {
             if (hit)
-                Console.Write("X");
+                AnsiConsole.Write(new Markup("[red]X[/]"));
             else
                 Console.Write(representation);
         }

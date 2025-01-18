@@ -5,13 +5,14 @@ using System.Text;
 using System.Threading.Tasks;
 using Battleship.Model;
 using Battleship.Pattern;
+using Spectre.Console;
 namespace Battleship.View
 {
     internal class GameView : EventObserver
     {
         private const int MAP_WIDTH = 50;
         private const int MAP_SPACING = 15;
-
+        private AssetManager _assetManager = AssetManager.Instance;
         public void DisplayBuildInstructions(int i)
         {
             switch(i){
@@ -63,12 +64,12 @@ namespace Battleship.View
         private void DrawBaseGrid(int leftOffset)
         {
             Console.SetCursorPosition(leftOffset, 0);
-            Console.WriteLine("      A    B    C    D    E    F    G    H    I    J   ");
+            AnsiConsole.Write(new Markup($"[{_assetManager.MapColor}]      A    B    C    D    E    F    G    H    I    J   [/]"));
 
             for (int i = 1; i <= 10; i++)
             {
                 Console.SetCursorPosition(leftOffset, i * 2);
-                Console.Write($"{i,2}    ");
+                AnsiConsole.Write(new Markup($"[{_assetManager.MapColor}]{i,2}    [/]"));
                 for (int j = 0; j < 10; j++)
                     Console.Write("     ");
 
@@ -131,24 +132,24 @@ namespace Battleship.View
             switch (i)
             {
                 case 0:
-                    Console.WriteLine("Trafiony!");
-                    Console.WriteLine("\nNaciśnij dowolny klawisz, aby oddać kolejny strzał.");
+                    AnsiConsole.Write(new Markup("[red]Trafiony![/]"));
+                    AnsiConsole.WriteLine("\nNaciśnij dowolny klawisz, aby oddać kolejny strzał.");
                     break;
                 case 1:
-                    Console.WriteLine("Nieprawidłowe współrzędne. Wprowadź literę (A-J) i cyfrę (1-10).");
-                    Console.WriteLine("\nNaciśnij dowolny klawisz, aby kontynuować.");
+                    AnsiConsole.WriteLine("Nieprawidłowe współrzędne. Wprowadź literę (A-J) i cyfrę (1-10).");
+                    AnsiConsole.WriteLine("\nNaciśnij dowolny klawisz, aby kontynuować.");
                     break;
                 case 2:
-                    Console.WriteLine("Pierwsza współrzędna musi być literą od A do J.");
-                    Console.WriteLine("\nNaciśnij dowolny klawisz, aby kontynuować.");
+                    AnsiConsole.WriteLine("Pierwsza współrzędna musi być literą od A do J.");
+                    AnsiConsole.WriteLine("\nNaciśnij dowolny klawisz, aby kontynuować.");
                     break;
                 case 3:
-                    Console.WriteLine("Druga współrzędna musi być liczbą od 1 do 10.");
-                    Console.WriteLine("\nNaciśnij dowolny klawisz, aby kontynuować.");
+                    AnsiConsole.WriteLine("Druga współrzędna musi być liczbą od 1 do 10.");
+                    AnsiConsole.WriteLine("\nNaciśnij dowolny klawisz, aby kontynuować.");
                     break;
                 case 4:
-                    Console.WriteLine("Pudło!");
-                    Console.WriteLine("\nNaciśnij dowolny klawisz, aby zmienić turę!");
+                    AnsiConsole.Write(new Markup("[yellow]Pudło![/]"));
+                    AnsiConsole.WriteLine("\nNaciśnij dowolny klawisz, aby zmienić turę!");
                     break;
             }
         }
@@ -176,6 +177,54 @@ namespace Battleship.View
                 if (player.HandleShipPlacementInput(key, length))
                     break;
             }
+        }
+        public string MainMenu()
+        {
+            var option = AnsiConsole.Prompt(
+                new SelectionPrompt<string>()
+                    .Title("Select [green]option[/]")
+                    .PageSize(10)
+                    .AddChoices(new[] {
+                        "Player vs Player", "Player vs Computer", "Simulation",
+                        "Options", "Achievements", "Ranking",
+                        "History", "Exit"
+                    }));
+            return option;
+        }
+        public void DisplayOptions() 
+        {
+            while (true)
+            {
+                Console.Clear();      
+                AnsiConsole.Write(new Markup($"Current Map color is [{_assetManager.MapColor}]{_assetManager.MapColor}[/]\n"));
+
+                var option = AnsiConsole.Prompt(
+                    new SelectionPrompt<string>()
+                        .Title("Select [green]option[/] to change")
+                        .PageSize(10)
+                        .AddChoices(new[] {
+                        "Map color", "Back"
+                        }));
+                switch (option)
+                {
+                    case "Map color":
+                        ChangeColor();
+                        break;
+                    case "Back":
+                        return;
+                }
+            } 
+        }
+        public void ChangeColor()
+        {
+            var option = AnsiConsole.Prompt(
+                    new SelectionPrompt<string>()
+                        .Title("Select [green]color[/]")
+                        .PageSize(10)
+                        .AddChoices(new[] {
+                        "white", "blue", "red", "yellow","purple"
+                        }));
+            _assetManager.MapColor = option;
         }
     }
 }

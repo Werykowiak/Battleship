@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Spectre.Console;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -21,7 +22,10 @@ namespace Battleship.Model
 
         public void display()
         {
-            Console.Write(representation);
+            if(representation == '!')
+                AnsiConsole.Write(new Markup($"[red]{representation}[/]"));
+            else
+                AnsiConsole.Write(new Markup($"[yellow]{representation}[/]"));
         }
     }
 }

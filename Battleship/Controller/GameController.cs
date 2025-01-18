@@ -28,20 +28,45 @@ namespace Battleship.Controller
 
         public void Run()
         {
+
             // Rozstawianie floty
-            Console.Clear();
-            _view.BuildFleetForPlayer(_model.player1);
-            _model.nextTurn();
-            Console.Clear();
-            _view.BuildFleetForPlayer(_model.player2);
-            _model.nextTurn();
-
-            // Reszta gry
-            // PlayerVsPlayerLoop();
-            // PlayerVsComputerLoop();
-            ComputerVsComputerLoop();
-
-            // UWAGA: NA TEN MOMENT W MODELU ZE ZMIANĄ TRYBU ROZGRYWKI (PvsP, PvsC, CvsC) TRZEBA ODPOWIEDNIO PODMIENIĆ KLASY GRACZY (AIPlayer LUB Player)
+            string option;
+            do{
+                option = _view.MainMenu();
+                switch (option)
+                {
+                    case "Player vs Player":
+                        _model.player1 = new Player("Pierwszy");
+                        _model.player2 = new Player("Drugi");
+                        BuildFleets();
+                        PlayerVsPlayerLoop();
+                        break;
+                    case "Player vs Computer":
+                        _model.player1 = new Player("Pierwszy");
+                        _model.player2 = new AIPlayer("Drugi");
+                        BuildFleets();
+                        PlayerVsComputerLoop();
+                        break;
+                    case "Simulation":
+                        _model.player1 = new AIPlayer("Pierwszy");
+                        _model.player2 = new AIPlayer("Drugi");
+                        BuildFleets();
+                        ComputerVsComputerLoop();
+                        break;
+                    case "Options":
+                        _view.DisplayOptions();
+                        break;
+                    case "Achievements":
+                        break;
+                    case "Ranking":
+                        break;
+                    case "History":
+                        break;
+                    case "Exit":
+                        Environment.Exit(0);
+                        break;
+                }
+            } while (true);
         }
 
         public void PlayerVsPlayerLoop()
@@ -61,6 +86,7 @@ namespace Battleship.Controller
                 }
                 Console.ReadKey(true);
             }
+            Console.Clear();
         }
 
         public void PlayerVsComputerLoop()
@@ -90,6 +116,7 @@ namespace Battleship.Controller
                 }
                 Console.ReadKey(true);
             }
+            Console.Clear();
         }
 
         public void ComputerVsComputerLoop()
@@ -109,6 +136,16 @@ namespace Battleship.Controller
                 }
                 Console.ReadKey(true);
             }
+            Console.Clear();
+        }
+        private void BuildFleets()
+        {
+            Console.Clear();
+            _view.BuildFleetForPlayer(_model.player1);
+            _model.nextTurn();
+            Console.Clear();
+            _view.BuildFleetForPlayer(_model.player2);
+            _model.nextTurn();
         }
     }
 }
