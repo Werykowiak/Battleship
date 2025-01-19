@@ -15,7 +15,8 @@ namespace Battleship.View
         private AssetManager _assetManager = AssetManager.Instance;
         public void DisplayBuildInstructions(int i)
         {
-            switch(i){
+            switch (i)
+            {
                 case 1:
                     Console.WriteLine("Choose a ship to place: ");
                     break;
@@ -101,20 +102,21 @@ namespace Battleship.View
         public void DisplayCurrentPlayer(string playerName)
         {
             (int left, int top) = Console.GetCursorPosition();
-            
+
             Console.SetCursorPosition(Console.WindowWidth - playerName.Length - 15, 22);
             Console.Write("Tura gracza: " + playerName);
-            
+
             Console.SetCursorPosition(left, top);
         }
 
         public void BuildFleetForPlayer(IPlayer player)
         {
-            player.BuildFleet((shipParts, placeholderShip) => {
+            player.BuildFleet((shipParts, placeholderShip) =>
+            {
                 Console.Clear();
                 DisplayBuilderMap(shipParts, placeholderShip);
                 DisplayCurrentPlayer(player.name);
-                
+
                 if (player is Player && placeholderShip == null)
                 {
                     DisplayRemainingShipsToPlace(player.GetFleet());
@@ -157,7 +159,7 @@ namespace Battleship.View
         private void PlaceShipForPlayer(Player player, int shipType)
         {
             int length = shipType == 1 ? 5 : shipType == 2 ? 4 : 3;
-            
+
             if (!player.CanAddShipOfLength(length))
             {
                 Console.WriteLine($"Cannot add more ships of length {length}.");
@@ -191,11 +193,11 @@ namespace Battleship.View
                     }));
             return option;
         }
-        public void DisplayOptions() 
+        public void DisplayOptions()
         {
             while (true)
             {
-                Console.Clear();      
+                Console.Clear();
                 AnsiConsole.Write(new Markup($"Current Map color is [{_assetManager.MapColor}]{_assetManager.MapColor}[/]\n"));
 
                 var option = AnsiConsole.Prompt(
@@ -213,7 +215,7 @@ namespace Battleship.View
                     case "Back":
                         return;
                 }
-            } 
+            }
         }
         public void ChangeColor()
         {
@@ -225,6 +227,35 @@ namespace Battleship.View
                         "white", "blue", "red", "yellow","purple"
                         }));
             _assetManager.MapColor = option;
+        }
+
+        public void DisplayHistory()
+        {
+            var games = GameHistory.ReadGameHistory();
+
+            var table = new Table();
+            table.AddColumn("Player 1");
+            table.AddColumn("Player 2");
+            table.AddColumn("P1 Shots");
+            table.AddColumn("P2 Shots");
+            table.AddColumn("Winner");
+
+            foreach (var game in games)
+            {
+                table.AddRow(
+                    game.Player1Name,
+                    game.Player2Name,
+                    game.Player1Shots.ToString(),
+                    game.Player2Shots.ToString(),
+                    game.Winner
+                );
+            }
+
+            Console.Clear();
+            AnsiConsole.Write(table);
+            Console.WriteLine("\nPress any key to return to menu...");
+            Console.ReadKey(true);
+            Console.Clear();
         }
     }
 }

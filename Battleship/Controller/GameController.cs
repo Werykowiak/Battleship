@@ -61,6 +61,7 @@ namespace Battleship.Controller
                     case "Ranking":
                         break;
                     case "History":
+                        _view.DisplayHistory();
                         break;
                     case "Exit":
                         Environment.Exit(0);
