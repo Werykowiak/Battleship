@@ -43,13 +43,13 @@ namespace Battleship.Controller
                         break;
                     case "Player vs Computer":
                         _model.player1 = new Player("Pierwszy");
-                        _model.player2 = new AIPlayer("Drugi");
+                        _model.player2 = new AIPlayer("Drugi (AI)");
                         BuildFleets();
                         PlayerVsComputerLoop();
                         break;
                     case "Simulation":
-                        _model.player1 = new AIPlayer("Pierwszy");
-                        _model.player2 = new AIPlayer("Drugi");
+                        _model.player1 = new AIPlayer("Pierwszy (AI)");
+                        _model.player2 = new AIPlayer("Drugi (AI)");
                         BuildFleets();
                         ComputerVsComputerLoop();
                         break;

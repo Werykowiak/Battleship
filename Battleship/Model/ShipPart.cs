@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Battleship.Model
 {
-    public class ShipPart
+    public class ShipPart : IShipInterface
     {
         private Vector2i position { get; set; }
         private bool hit { get; set; }
@@ -30,29 +30,29 @@ namespace Battleship.Model
             return false;
         }
 
-        public bool isHit()
+        public bool IsHit()
         {
             return hit;
         }
 
-        public Vector2i getPosition()
+        public Vector2i GetPosition()
         {
             return position;
         }
 
-        public void setPosition(Vector2i position)
+        public void SetPosition(Vector2i position)
         {
             this.position = position;
         }
 
-        public void display()
+        public void Display()
         {
             if (hit)
                 AnsiConsole.Write(new Markup("[red]X[/]"));
             else
                 Console.Write(representation);
         }
-        public ShipPart clone()
+        public IShipInterface Clone()
         {
             return new ShipPart(position.x, position.y);
         }

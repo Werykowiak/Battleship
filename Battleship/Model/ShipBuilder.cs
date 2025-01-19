@@ -38,7 +38,7 @@ namespace Battleship.Model
 
         public Ship Build()
         {
-            List<ShipPart> shipParts = new List<ShipPart>();
+            List<IShipInterface> shipParts = new List<IShipInterface>();
 
             // Determine ship type based on length
             ShipType shipType = (ShipType)_length;
