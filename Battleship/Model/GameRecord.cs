@@ -8,5 +8,6 @@ namespace Battleship.Model
         public int Player1Shots { get; set; }
         public int Player2Shots { get; set; }
         public string Winner { get; set; }
+        public DateTime GameDate { get; set; }
     }
 }

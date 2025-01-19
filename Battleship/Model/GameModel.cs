@@ -62,7 +62,8 @@ namespace Battleship.Model
                 Player2Name = player2.name,
                 Player1Shots = player1.GetShots().Count,
                 Player2Shots = player2.GetShots().Count,
-                Winner = winner.name
+                Winner = winner.name,
+                GameDate = DateTime.Now
             };
             GameHistory.SaveGame(gameRecord);
         }

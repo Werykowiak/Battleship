@@ -234,6 +234,7 @@ namespace Battleship.View
             var games = GameHistory.ReadGameHistory();
 
             var table = new Table();
+            table.AddColumn("Date");
             table.AddColumn("Player 1");
             table.AddColumn("Player 2");
             table.AddColumn("P1 Shots");
@@ -243,6 +244,7 @@ namespace Battleship.View
             foreach (var game in games)
             {
                 table.AddRow(
+                    game.GameDate.ToString("dd/MM/yyyy HH:mm"),
                     game.Player1Name,
                     game.Player2Name,
                     game.Player1Shots.ToString(),
