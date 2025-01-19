@@ -80,6 +80,13 @@ namespace Battleship.Model
         public abstract int AddShot(ShipFleet targetFleet);
     }
 
+    public enum AIDifficulty
+    {
+        Easy,
+        Medium,
+        Hard
+    }
+
     public class Player : BasePlayer
     {
         public Player(string name) : base(name) { }
@@ -230,9 +237,14 @@ namespace Battleship.Model
 
     public class AIPlayer : BasePlayer
     {
-        private Random random = new Random();
+        protected Random random = new Random();
+        protected AIDifficulty difficulty;
+        protected List<Vector2i> successfulHits = new List<Vector2i>();
 
-        public AIPlayer(string name) : base(name) { }
+        public AIPlayer(string name, AIDifficulty difficulty = AIDifficulty.Medium) : base(name)
+        {
+            this.difficulty = difficulty;
+        }
 
         public override void BuildFleet(Action<List<IShipInterface>, Ship?> displayCallback)
         {
@@ -263,29 +275,133 @@ namespace Battleship.Model
 
         public override int AddShot(ShipFleet targetFleet)
         {
-            Vector2i pos;
-            bool validShot;
-
-            do
+            Vector2i pos = difficulty switch
             {
-                pos = new Vector2i(random.Next(BOARD_SIZE), random.Next(BOARD_SIZE));
-                validShot = !shots.Any(shot => 
-                    shot.getPosition().x == pos.x && 
-                    shot.getPosition().y == pos.y
-                );
-            } while (!validShot);
+                AIDifficulty.Easy => GetEasyShot(),
+                AIDifficulty.Medium => GetMediumShot(),
+                AIDifficulty.Hard => GetHardShot(targetFleet),
+                _ => GetMediumShot()
+            };
 
             foreach (ShipPart part in targetFleet.getParts())
             {
                 if (part.Shoot(pos.x, pos.y))
                 {
                     shots.Add(new Shot(pos, '!'));
+                    if (difficulty != AIDifficulty.Easy)
+                    {
+                        successfulHits.Add(pos);
+                    }
                     return 0;
                 }
             }
 
             shots.Add(new Shot(pos, 'O'));
             return 4;
+        }
+
+        private Vector2i GetEasyShot()
+        {
+            Vector2i pos;
+            do
+            {
+                pos = new Vector2i(random.Next(BOARD_SIZE), random.Next(BOARD_SIZE));
+            } while (!IsValidShot(pos));
+            return pos;
+        }
+
+        private Vector2i GetMediumShot()
+        {
+            if (successfulHits.Count > 0 && random.Next(100) < 70)
+            {
+                Vector2i lastHit = successfulHits.Last();
+                Vector2i[] adjacentPositions = new[]
+                {
+                    new Vector2i(lastHit.x - 1, lastHit.y),
+                    new Vector2i(lastHit.x + 1, lastHit.y),
+                    new Vector2i(lastHit.x, lastHit.y - 1),
+                    new Vector2i(lastHit.x, lastHit.y + 1)
+                };
+
+                var validPositions = adjacentPositions.Where(pos => 
+                    pos.x >= 0 && pos.x < BOARD_SIZE && 
+                    pos.y >= 0 && pos.y < BOARD_SIZE && 
+                    IsValidShot(pos)).ToList();
+
+                if (validPositions.Any())
+                {
+                    return validPositions[random.Next(validPositions.Count)];
+                }
+            }
+
+            return GetEasyShot();
+        }
+
+        private Vector2i GetHardShot(ShipFleet targetFleet)
+        {
+            if (successfulHits.Count > 0)
+            {
+                Vector2i lastHit = successfulHits.Last();
+                bool horizontal = successfulHits.Count > 1 && 
+                    successfulHits.Any(h => h.x != lastHit.x && h.y == lastHit.y);
+
+                List<Vector2i> potentialShots = new List<Vector2i>();
+                if (horizontal)
+                {
+                    potentialShots.Add(new Vector2i(lastHit.x - 1, lastHit.y));
+                    potentialShots.Add(new Vector2i(lastHit.x + 1, lastHit.y));
+                }
+                else
+                {
+                    potentialShots.Add(new Vector2i(lastHit.x, lastHit.y - 1));
+                    potentialShots.Add(new Vector2i(lastHit.x, lastHit.y + 1));
+                }
+
+                var validShots = potentialShots.Where(pos => 
+                    pos.x >= 0 && pos.x < BOARD_SIZE && 
+                    pos.y >= 0 && pos.y < BOARD_SIZE && 
+                    IsValidShot(pos)).ToList();
+
+                if (validShots.Any())
+                {
+                    return validShots[random.Next(validShots.Count)];
+                }
+            }
+
+            int attempts = 0;
+            const int MAX_ATTEMPTS = 100;
+            Vector2i pos;
+
+            do
+            {
+                pos = new Vector2i(random.Next(BOARD_SIZE), random.Next(BOARD_SIZE));
+                attempts++;
+                
+                if (attempts > MAX_ATTEMPTS)
+                {
+                    for (int x = 0; x < BOARD_SIZE; x++)
+                    {
+                        for (int y = 0; y < BOARD_SIZE; y++)
+                        {
+                            pos = new Vector2i(x, y);
+                            if (IsValidShot(pos))
+                            {
+                                return pos;
+                            }
+                        }
+                    }
+                }
+            } while (!IsValidShot(pos) || (pos.x + pos.y) % 2 != 0);
+
+            return pos;
+        }
+
+        private bool IsValidShot(Vector2i pos)
+        {
+            return !shots.Any(shot => 
+                shot.getPosition().x == pos.x && 
+                shot.getPosition().y == pos.y
+            );
         }
     }
 } 

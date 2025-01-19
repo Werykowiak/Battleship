@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Battleship.Model;
 using Battleship.View;
 using Battleship.Pattern;
+using Spectre.Console;
 
 namespace Battleship.Controller
 {
@@ -28,10 +29,9 @@ namespace Battleship.Controller
 
         public void Run()
         {
-
-            // Rozstawianie floty
             string option;
-            do{
+            do
+            {
                 option = _view.MainMenu();
                 switch (option)
                 {
@@ -43,13 +43,16 @@ namespace Battleship.Controller
                         break;
                     case "Player vs Computer":
                         _model.player1 = new Player("Pierwszy");
-                        _model.player2 = new AIPlayer("Drugi (AI)");
+                        var aiDifficulty = SelectAIDifficulty("AI Player");
+                        _model.player2 = new AIPlayer("Drugi (AI)", aiDifficulty);
                         BuildFleets();
                         PlayerVsComputerLoop();
                         break;
                     case "Simulation":
-                        _model.player1 = new AIPlayer("Pierwszy (AI)");
-                        _model.player2 = new AIPlayer("Drugi (AI)");
+                        var ai1Difficulty = SelectAIDifficulty("First AI Player");
+                        var ai2Difficulty = SelectAIDifficulty("Second AI Player");
+                        _model.player1 = new AIPlayer("Pierwszy (AI)", ai1Difficulty);
+                        _model.player2 = new AIPlayer("Drugi (AI)", ai2Difficulty);
                         BuildFleets();
                         ComputerVsComputerLoop();
                         break;
@@ -59,6 +62,7 @@ namespace Battleship.Controller
                     case "Achievements":
                         break;
                     case "Ranking":
+                        _view.DisplayRanking();
                         break;
                     case "History":
                         _view.DisplayHistory();
@@ -72,6 +76,8 @@ namespace Battleship.Controller
 
         public void PlayerVsPlayerLoop()
         {
+            _model.resetGame();
+
             while (!_model.GameOver)
             {
                 Console.Clear();
@@ -79,6 +85,8 @@ namespace Battleship.Controller
                 _view.DisplayShotInstructions();
 
                 int result = _model.addShot(_model.CurrentPlayer);
+                Console.Clear();
+                _view.DisplayMap(_model.getShipFleet(_model.CurrentPlayer).getParts(), _model.getShots(_model.CurrentPlayer), _model.CurrentPlayer);
                 _view.DisplayShotMessage(result);
 
                 if (result == 4)
@@ -87,18 +95,23 @@ namespace Battleship.Controller
                 }
                 Console.ReadKey(true);
             }
-            Console.Clear();
+            EndGame();
         }
 
         public void PlayerVsComputerLoop()
         {
+            _model.resetGame();
+
             while (!_model.GameOver)
             {
+                // Player's turn
                 Console.Clear();
                 _view.DisplayMap(_model.getShipFleet(_model.CurrentPlayer).getParts(), _model.getShots(_model.CurrentPlayer), _model.CurrentPlayer);
                 _view.DisplayShotInstructions();
 
                 int result = _model.addShot(_model.CurrentPlayer);
+                Console.Clear();
+                _view.DisplayMap(_model.getShipFleet(_model.CurrentPlayer).getParts(), _model.getShots(_model.CurrentPlayer), _model.CurrentPlayer);
                 _view.DisplayShotMessage(result);
 
                 if (result == 4)
@@ -107,7 +120,10 @@ namespace Battleship.Controller
 
                     while (!_model.GameOver)
                     {
-                        result =_model.addShot(_model.CurrentPlayer);
+                        result = _model.addShot(_model.CurrentPlayer);
+                        Console.Clear();
+                        _view.DisplayShotMessage(result);
+                        
                         if (result == 4)
                         {
                             _model.nextTurn();
@@ -117,11 +133,13 @@ namespace Battleship.Controller
                 }
                 Console.ReadKey(true);
             }
-            Console.Clear();
+            EndGame();
         }
 
         public void ComputerVsComputerLoop()
         {
+            _model.resetGame();
+
             while (!_model.GameOver)
             {
                 Console.Clear();
@@ -129,6 +147,8 @@ namespace Battleship.Controller
                 _view.DisplayShotInstructions();
 
                 int result = _model.addShot(_model.CurrentPlayer);
+                Console.Clear();
+                _view.DisplayMap(_model.getShipFleet(_model.CurrentPlayer).getParts(), _model.getShots(_model.CurrentPlayer), _model.CurrentPlayer);
                 _view.DisplayShotMessage(result);
 
                 if (result == 4)
@@ -137,7 +157,7 @@ namespace Battleship.Controller
                 }
                 Console.ReadKey(true);
             }
-            Console.Clear();
+            EndGame();
         }
         private void BuildFleets()
         {
@@ -147,6 +167,33 @@ namespace Battleship.Controller
             Console.Clear();
             _view.BuildFleetForPlayer(_model.player2);
             _model.nextTurn();
+        }
+
+        private AIDifficulty SelectAIDifficulty(string playerName)
+        {
+            var difficulty = AnsiConsole.Prompt(
+                new SelectionPrompt<string>()
+                    .Title($"Select [green]difficulty[/] for {playerName}")
+                    .PageSize(3)
+                    .AddChoices(new[] {
+                        "Easy", "Medium", "Hard"
+                    }));
+            
+            return difficulty switch
+            {
+                "Easy" => AIDifficulty.Easy,
+                "Hard" => AIDifficulty.Hard,
+                _ => AIDifficulty.Medium
+            };
+        }
+
+        private void EndGame()
+        {
+            Console.Clear();
+            _view.DisplayGameSummary(_model.player1, _model.player2, _model.Winner);
+            Console.ReadKey(true);
+            Console.Clear();
+            _model.resetGame();
         }
     }
 }

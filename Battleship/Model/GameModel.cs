@@ -9,16 +9,25 @@ namespace Battleship.Model
 {
     public class GameModel : EventObserver
     {
-        public IPlayer player1 = new Player("Pierwszy");
-        public IPlayer player2 = new AIPlayer("Drugi");
+        private IPlayer _player1;
+        public IPlayer player1
+        {
+            get { return _player1; }
+            set
+            {
+                _player1 = value;
+                CurrentPlayer = value;
+            }
+        }
+        public IPlayer player2;
         public IPlayer CurrentPlayer { get; private set; }
         public bool GameOver { get; private set; }
         private IPlayer winner;
+        public IPlayer Winner { get; private set; }
 
         public GameModel()
         {
             GameOver = false;
-            CurrentPlayer = player1;
         }
 
         public ShipFleet getShipFleet(IPlayer player)
@@ -46,12 +55,20 @@ namespace Battleship.Model
                 if (targetFleet.IsSunk())
                 {
                     GameOver = true;
+                    Winner = player;
                     SaveGameHistory(player);
                     Notify("GAME_OVER");
                 }
             }
 
             return result;
+        }
+
+        public void resetGame()
+        {
+            GameOver = false;
+            CurrentPlayer = player1;
+            Winner = null;
         }
 
         private void SaveGameHistory(IPlayer winner)

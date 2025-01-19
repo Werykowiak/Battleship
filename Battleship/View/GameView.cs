@@ -259,5 +259,92 @@ namespace Battleship.View
             Console.ReadKey(true);
             Console.Clear();
         }
+
+        public void DisplayGameSummary(IPlayer player1, IPlayer player2, IPlayer winner)
+        {
+            Console.Clear();
+            AnsiConsole.Write(new Markup($"[green]GAME OVER! Winner: {winner.name}[/]"));
+            Console.WriteLine("\n\nPress any key to see players' fleets...");
+            Console.ReadKey(true);
+
+            Console.Clear();
+            Console.WriteLine($"{player1.name}'s fleet:");
+            Console.WriteLine();
+            DrawBaseGrid(0);
+            DisplayShipParts(player1.GetFleet().getParts(), 0);
+            foreach (var shot in player2.GetShots())
+            {
+                Console.SetCursorPosition(shot.getPosition().x * 5 + 6, shot.getPosition().y * 2 + 2);
+                shot.display();
+            }
+            Console.SetCursorPosition(0, 22);
+            Console.WriteLine("\n\nPress any key to see next player's fleet...");
+            Console.ReadKey(true);
+
+            Console.Clear();
+            Console.WriteLine($"{player2.name}'s fleet:");
+            Console.WriteLine();
+            DrawBaseGrid(0);
+            DisplayShipParts(player2.GetFleet().getParts(), 0);
+            foreach (var shot in player1.GetShots())
+            {
+                Console.SetCursorPosition(shot.getPosition().x * 5 + 6, shot.getPosition().y * 2 + 2);
+                shot.display();
+            }
+            Console.SetCursorPosition(0, 22);
+            Console.WriteLine("\n\nPress any key to return to menu...");
+            Console.ReadKey(true);
+        }
+
+        public void DisplayRanking()
+        {
+            var games = GameHistory.ReadGameHistory();
+            
+            var playerStats = games.SelectMany(g => new[] 
+            {
+                (Name: g.Player1Name, Shots: g.Player1Shots, IsWinner: g.Winner == g.Player1Name),
+                (Name: g.Player2Name, Shots: g.Player2Shots, IsWinner: g.Winner == g.Player2Name)
+            })
+            .GroupBy(p => p.Name)
+            .Select(g => new
+            {
+                PlayerName = g.Key,
+                GamesPlayed = g.Count(),
+                Wins = g.Count(p => p.IsWinner),
+                AverageShots = g.Average(p => p.Shots),
+                WinRate = (double)g.Count(p => p.IsWinner) / g.Count() * 100
+            })
+            .OrderByDescending(p => p.Wins)
+            .ToList();
+
+            var table = new Table();
+            table.Title = new TableTitle("[yellow]Player Rankings[/]");
+            table.AddColumn("Rank");
+            table.AddColumn("Player Name");
+            table.AddColumn("Games Played");
+            table.AddColumn("Wins");
+            table.AddColumn("Win Rate %");
+            table.AddColumn("Avg. Shots");
+
+            int rank = 1;
+            foreach (var stat in playerStats)
+            {
+                table.AddRow(
+                    rank.ToString(),
+                    stat.PlayerName,
+                    stat.GamesPlayed.ToString(),
+                    stat.Wins.ToString(),
+                    $"{stat.WinRate:F1}%",
+                    $"{stat.AverageShots:F1}"
+                );
+                rank++;
+            }
+
+            Console.Clear();
+            AnsiConsole.Write(table);
+            Console.WriteLine("\nPress any key to return to menu...");
+            Console.ReadKey(true);
+            Console.Clear();
+        }
     }
 }
