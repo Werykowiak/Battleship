@@ -10,7 +10,7 @@ namespace Battleship.Model
         ShipFleet GetFleet();
         List<Shot> GetShots();
         void AddShot(Vector2i pos, char rep);
-        void BuildFleet(Action<List<ShipPart>, Ship?> displayCallback);
+        void BuildFleet(Action<List<IShipInterface>, Ship?> displayCallback);
         bool CanAddShipOfLength(int length);
         int AddShot(ShipFleet targetFleet);
     }
@@ -44,7 +44,7 @@ namespace Battleship.Model
 
         protected bool IsValidPlacement(Ship ship)
         {
-            Vector2i startPos = ship.getParts()[0].getPosition();
+            Vector2i startPos = ((ShipPart)ship.getParts()[0]).GetPosition();
             int length = ship.getParts().Count;
 
             if (!IsWithinBounds(startPos, length, orientation))
@@ -56,8 +56,8 @@ namespace Battleship.Model
                 {
                     foreach (ShipPart existingPart in existingShip.getParts())
                     {
-                        if (newPart.getPosition().x == existingPart.getPosition().x &&
-                            newPart.getPosition().y == existingPart.getPosition().y)
+                        if (newPart.GetPosition().x == existingPart.GetPosition().x &&
+                            newPart.GetPosition().y == existingPart.GetPosition().y)
                             return false;
                     }
                 }
@@ -76,7 +76,7 @@ namespace Battleship.Model
                 return position.y + length <= BOARD_SIZE && position.x < BOARD_SIZE;
         }
 
-        public abstract void BuildFleet(Action<List<ShipPart>, Ship?> displayCallback);
+        public abstract void BuildFleet(Action<List<IShipInterface>, Ship?> displayCallback);
         public abstract int AddShot(ShipFleet targetFleet);
     }
 
@@ -84,7 +84,7 @@ namespace Battleship.Model
     {
         public Player(string name) : base(name) { }
 
-        public override void BuildFleet(Action<List<ShipPart>, Ship?> displayCallback)
+        public override void BuildFleet(Action<List<IShipInterface>, Ship?> displayCallback)
         {
             while (!fleet.isComplete())
             {
@@ -234,7 +234,7 @@ namespace Battleship.Model
 
         public AIPlayer(string name) : base(name) { }
 
-        public override void BuildFleet(Action<List<ShipPart>, Ship?> displayCallback)
+        public override void BuildFleet(Action<List<IShipInterface>, Ship?> displayCallback)
         {
             int[] shipLengths = new[] { 5, 4, 4, 3, 3, 3 };
             

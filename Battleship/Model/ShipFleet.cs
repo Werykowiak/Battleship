@@ -8,11 +8,11 @@ namespace Battleship.Model
 {
     public class ShipFleet
     {
-        private List<Ship> ships;
+        private List<IShipInterface> ships;
 
         public ShipFleet()
         {
-            ships = new List<Ship>();
+            ships = new List<IShipInterface>();
         }
 
         public void addShip(Ship ship)
@@ -36,7 +36,7 @@ namespace Battleship.Model
         {
             foreach (Ship ship in ships)
             {
-                if (!ship.IsSunk())
+                if (!ship.IsHit())
                 {
                     return false;
                 }
@@ -57,14 +57,14 @@ namespace Battleship.Model
             return count;
         }
 
-        public List<Ship> GetShips()
+        public List<IShipInterface> GetShips()
         {
             return ships;
         }
 
-        public List<ShipPart> getParts()
+        public List<IShipInterface> getParts()
         {
-            List<ShipPart> parts = new List<ShipPart>();
+            List<IShipInterface> parts = new List<IShipInterface>();
             foreach (Ship ship in ships)
             {
                 parts.AddRange(ship.getParts());

@@ -6,23 +6,23 @@ using System.Threading.Tasks;
 
 namespace Battleship.Model
 {
-    public class Ship
+    public class Ship: IShipInterface
     {
-        private List<ShipPart> parts = new List<ShipPart>();
+        private List<IShipInterface> parts = new List<IShipInterface>();
         private bool sunk = false;
 
-        public Ship(List<ShipPart> parts)
+        public Ship(List<IShipInterface> parts)
         {
             this.parts = parts;
         }
 
         public bool Shoot(int x, int y)
         {
-            foreach (ShipPart part in parts)
+            foreach (IShipInterface part in parts)
             {
                 if (part.Shoot(x, y))
                 {
-                    if (IsSunk())
+                    if (IsHit())
                     {
                         sunk = true;
                     }
@@ -32,11 +32,11 @@ namespace Battleship.Model
             return false;
         }
 
-        public bool IsSunk()
+        public bool IsHit()
         {
             foreach (ShipPart part in parts)
             {
-                if (!part.isHit())
+                if (!part.IsHit())
                 {
                     return false;
                 }
@@ -49,17 +49,17 @@ namespace Battleship.Model
             return parts.Count;
         }
 
-        public List<ShipPart> getParts()
+        public List<IShipInterface> getParts()
         {
             return parts;
         }
 
-        public Ship clone()
+        public IShipInterface Clone()
         {
-            List<ShipPart> newParts = new List<ShipPart>();
+            List<IShipInterface> newParts = new List<IShipInterface>();
             foreach (ShipPart part in parts)
             {
-                newParts.Add(part.clone());
+                newParts.Add(part.Clone());
             }
             return new Ship(newParts);
         }
