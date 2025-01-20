@@ -159,25 +159,15 @@ namespace Battleship.Controller
         public void ComputerVsComputerLoop()
         {
             _model.resetGame();
-
-
+            _isGameInProgress = true;
             _model.gameMode = "Sim";
-            while (!_model.GameOver)
-            {
-                Console.Clear();
-                _view.DisplayMap(_model.getShipFleet(_model.CurrentPlayer).getParts(), _model.getShots(_model.CurrentPlayer), _model.CurrentPlayer);
-                _view.DisplayShotInstructions();
 
-                int result = _model.addShot(_model.CurrentPlayer);
-                Console.Clear();
-                _view.DisplayMap(_model.getShipFleet(_model.CurrentPlayer).getParts(), _model.getShots(_model.CurrentPlayer), _model.CurrentPlayer);
-                _view.DisplayShotMessage(result);
-                while (_isGameInProgress)
-                {
-                    ProcessTurn(_model.CurrentPlayer);
-                }
+            while (_isGameInProgress)
+            {
+                ProcessTurn(_model.CurrentPlayer);
             }
         }
+
         private void BuildFleets()
         {
             Console.Clear();
