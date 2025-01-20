@@ -14,16 +14,17 @@ namespace Battleship.Controller
     {
         private GameModel _model;
         private GameView _view;
+        private bool _isGameInProgress;
 
         public GameController(GameModel model, GameView view)
         {
             _model = model;
             _view = view;
             
-            // Subscribe to model events
             _model.Connect("GAME_OVER", new Observator.Listener(() => {
-                Console.WriteLine("[GameController] GameModel has informed about game over.");
-                return false;
+                _isGameInProgress = false;
+                EndGame();
+                return  false;
             }));
         }
 
@@ -74,91 +75,93 @@ namespace Battleship.Controller
             } while (true);
         }
 
+        private void ProcessTurn(IPlayer player)
+        {
+            if (!_isGameInProgress) return;
+
+            Console.Clear();
+            _view.DisplayMap(_model.getShipFleet(_model.CurrentPlayer).getParts(), 
+                            _model.getShots(_model.CurrentPlayer), 
+                            _model.CurrentPlayer);
+            _view.DisplayShotInstructions();
+
+            int result = _model.addShot(_model.CurrentPlayer);
+            
+            if (!_isGameInProgress) return;
+
+            Console.Clear();
+            _view.DisplayMap(_model.getShipFleet(_model.CurrentPlayer).getParts(), 
+                            _model.getShots(_model.CurrentPlayer), 
+                            _model.CurrentPlayer);
+            _view.DisplayShotMessage(result);
+
+            if (result == 4)
+            {
+                _model.nextTurn();
+            }
+            
+            if (_isGameInProgress)
+            {
+                Console.ReadKey(true);
+            }
+        }
+
         public void PlayerVsPlayerLoop()
         {
             _model.resetGame();
+            _isGameInProgress = true;
 
-            while (!_model.GameOver)
+            while (_isGameInProgress)
             {
-                Console.Clear();
-                _view.DisplayMap(_model.getShipFleet(_model.CurrentPlayer).getParts(), _model.getShots(_model.CurrentPlayer), _model.CurrentPlayer);
-                _view.DisplayShotInstructions();
-
-                int result = _model.addShot(_model.CurrentPlayer);
-                Console.Clear();
-                _view.DisplayMap(_model.getShipFleet(_model.CurrentPlayer).getParts(), _model.getShots(_model.CurrentPlayer), _model.CurrentPlayer);
-                _view.DisplayShotMessage(result);
-
-                if (result == 4)
-                {
-                    _model.nextTurn();
-                }
-                Console.ReadKey(true);
+                ProcessTurn(_model.CurrentPlayer);
             }
-            EndGame();
         }
 
         public void PlayerVsComputerLoop()
         {
             _model.resetGame();
+            _isGameInProgress = true;
 
-            while (!_model.GameOver)
+            while (_isGameInProgress)
             {
-                // Player's turn
-                Console.Clear();
-                _view.DisplayMap(_model.getShipFleet(_model.CurrentPlayer).getParts(), _model.getShots(_model.CurrentPlayer), _model.CurrentPlayer);
-                _view.DisplayShotInstructions();
+                ProcessTurn(_model.CurrentPlayer);
+                
+                if (_isGameInProgress && _model.CurrentPlayer == _model.player2)
+                {
+                    ProcessAITurn();
+                }
+            }
+        }
 
+        private void ProcessAITurn()
+        {
+            while (_isGameInProgress)
+            {
                 int result = _model.addShot(_model.CurrentPlayer);
-                Console.Clear();
-                _view.DisplayMap(_model.getShipFleet(_model.CurrentPlayer).getParts(), _model.getShots(_model.CurrentPlayer), _model.CurrentPlayer);
-                _view.DisplayShotMessage(result);
+                if (!_isGameInProgress) return;
 
+                Console.Clear();
+                _view.DisplayShotMessage(result);
+                
                 if (result == 4)
                 {
                     _model.nextTurn();
-
-                    while (!_model.GameOver)
-                    {
-                        result = _model.addShot(_model.CurrentPlayer);
-                        Console.Clear();
-                        _view.DisplayShotMessage(result);
-                        
-                        if (result == 4)
-                        {
-                            _model.nextTurn();
-                            break;
-                        }
-                    }
+                    break;
                 }
-                Console.ReadKey(true);
             }
-            EndGame();
         }
 
         public void ComputerVsComputerLoop()
         {
             _model.resetGame();
+            _isGameInProgress = true;
 
-            while (!_model.GameOver)
+            while (_isGameInProgress)
             {
-                Console.Clear();
-                _view.DisplayMap(_model.getShipFleet(_model.CurrentPlayer).getParts(), _model.getShots(_model.CurrentPlayer), _model.CurrentPlayer);
-                _view.DisplayShotInstructions();
-
-                int result = _model.addShot(_model.CurrentPlayer);
-                Console.Clear();
-                _view.DisplayMap(_model.getShipFleet(_model.CurrentPlayer).getParts(), _model.getShots(_model.CurrentPlayer), _model.CurrentPlayer);
-                _view.DisplayShotMessage(result);
-
-                if (result == 4)
-                {
-                    _model.nextTurn();
-                }
-                Console.ReadKey(true);
+                ProcessTurn(_model.CurrentPlayer);
             }
-            EndGame();
         }
+
         private void BuildFleets()
         {
             Console.Clear();
