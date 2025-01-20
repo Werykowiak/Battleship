@@ -81,35 +81,26 @@ namespace Battleship.Controller
                             _model.getShots(_model.CurrentPlayer),
                             _model.CurrentPlayer);
             _view.DisplayShotInstructions();
-            _model.resetGame();
-            while (!_model.GameOver)
+
+            int result = _model.addShot(_model.CurrentPlayer);
+
+            if (!_isGameInProgress) return;
+
+            Console.Clear();
+            _view.DisplayMap(_model.getShipFleet(_model.CurrentPlayer).getParts(),
+                            _model.getShots(_model.CurrentPlayer),
+                            _model.CurrentPlayer);
+            _view.DisplayShotMessage(result);
+            if (result == 4)
             {
-                Console.Clear();
-                _view.DisplayMap(_model.getShipFleet(_model.CurrentPlayer).getParts(), _model.getShots(_model.CurrentPlayer), _model.CurrentPlayer);
-                _view.DisplayShotInstructions();
+                _model.nextTurn();
+            }
 
-                int result = _model.addShot(_model.CurrentPlayer);
-
-                if (!_isGameInProgress) return;
-
-                Console.Clear();
-                _view.DisplayMap(_model.getShipFleet(_model.CurrentPlayer).getParts(),
-                                _model.getShots(_model.CurrentPlayer),
-                                _model.CurrentPlayer);
-                _view.DisplayShotMessage(result);
-
-                if (result == 4)
-                {
-                    _model.nextTurn();
-                }
-
-                if (_isGameInProgress)
-                {
-                    Console.ReadKey(true);
-                }
+            if (_isGameInProgress)
+            {
+                Console.ReadKey(true);
             }
         }
-
         public void PlayerVsPlayerLoop()
         {
             _model.resetGame();
@@ -126,7 +117,6 @@ namespace Battleship.Controller
             _model.resetGame();
             _isGameInProgress = true;
 
-            _model.gameMode = "PvE";
             while (_isGameInProgress)
             {
                 ProcessTurn(_model.CurrentPlayer);
@@ -144,7 +134,6 @@ namespace Battleship.Controller
             {
                 int result = _model.addShot(_model.CurrentPlayer);
                 if (!_isGameInProgress) return;
-
                 Console.Clear();
                 _view.DisplayShotMessage(result);
 
