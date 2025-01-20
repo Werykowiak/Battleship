@@ -29,6 +29,7 @@ namespace Battleship.Controller
             string option;
             do
             {
+                Console.Clear();
                 option = _view.MainMenu();
                 switch (option)
                 {
