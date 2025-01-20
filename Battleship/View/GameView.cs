@@ -182,15 +182,22 @@ namespace Battleship.View
         }
         public string MainMenu()
         {
+            var choices = new List<string> {
+                        "Player vs Computer",
+                        "Options", "Achievements", "Ranking",
+                        "History", "Exit"
+                    };
+            if (GameAchievements.GetAchievement("PvP").IsCompleted)
+                choices.Insert(1, "Simulation");
+            if (GameAchievements.GetAchievement("PvE").IsCompleted)
+                choices.Insert(1,"Player vs Player");
+            
+
             var option = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
                     .Title("Select [green]option[/]")
                     .PageSize(10)
-                    .AddChoices(new[] {
-                        "Player vs Player", "Player vs Computer", "Simulation",
-                        "Options", "Achievements", "Ranking",
-                        "History", "Exit"
-                    }));
+                    .AddChoices(choices));
             return option;
         }
         public void DisplayOptions()
@@ -338,6 +345,25 @@ namespace Battleship.View
                     $"{stat.AverageShots:F1}"
                 );
                 rank++;
+            }
+
+            Console.Clear();
+            AnsiConsole.Write(table);
+            Console.WriteLine("\nPress any key to return to menu...");
+            Console.ReadKey(true);
+            Console.Clear();
+        }
+        public void DisplayAchievements()
+        {
+            var achievements = GameAchievements.GetAllAchievements();
+
+            var table = new Table();
+            table.AddColumn("Achievement");
+            table.AddColumn("Is Complete");
+
+            foreach (var achievement in achievements)
+            {
+                table.AddRow(achievement.Description,achievement.IsCompleted.ToString());
             }
 
             Console.Clear();

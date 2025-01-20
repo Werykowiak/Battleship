@@ -24,6 +24,7 @@ namespace Battleship.Model
         public bool GameOver { get; private set; }
         private IPlayer winner;
         public IPlayer Winner { get; private set; }
+        public string gameMode;
 
         public GameModel()
         {
@@ -69,6 +70,7 @@ namespace Battleship.Model
             GameOver = false;
             CurrentPlayer = player1;
             Winner = null;
+            gameMode = "";
         }
 
         private void SaveGameHistory(IPlayer winner)

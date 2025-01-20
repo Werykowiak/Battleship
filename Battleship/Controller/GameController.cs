@@ -60,6 +60,7 @@ namespace Battleship.Controller
                         _view.DisplayOptions();
                         break;
                     case "Achievements":
+                        _view.DisplayAchievements();
                         break;
                     case "Ranking":
                         _view.DisplayRanking();
@@ -77,7 +78,7 @@ namespace Battleship.Controller
         public void PlayerVsPlayerLoop()
         {
             _model.resetGame();
-
+            _model.gameMode = "PvP";
             while (!_model.GameOver)
             {
                 Console.Clear();
@@ -101,7 +102,7 @@ namespace Battleship.Controller
         public void PlayerVsComputerLoop()
         {
             _model.resetGame();
-
+            _model.gameMode = "PvE";
             while (!_model.GameOver)
             {
                 // Player's turn
@@ -139,7 +140,7 @@ namespace Battleship.Controller
         public void ComputerVsComputerLoop()
         {
             _model.resetGame();
-
+            _model.gameMode = "Sim";
             while (!_model.GameOver)
             {
                 Console.Clear();
@@ -191,6 +192,16 @@ namespace Battleship.Controller
         {
             Console.Clear();
             _view.DisplayGameSummary(_model.player1, _model.player2, _model.Winner);
+            if(_model.gameMode == "PvE" && _model.Winner is Player )
+            {
+                GameAchievements.UpdateAchievement("PvE");
+            }else if(_model.gameMode == "PvP")
+            {
+                GameAchievements.UpdateAchievement("PvE");
+            }else if(_model.gameMode == "Sim")
+            {
+                GameAchievements.UpdateAchievement("Sim");
+            }
             Console.ReadKey(true);
             Console.Clear();
             _model.resetGame();
