@@ -9,6 +9,7 @@ namespace Battleship.Model
         private Orientation _orientation;
         private Vector2i _startPosition;
         private AssetManager _assetManager;
+        private Boolean isCustom;
 
         public ShipBuilder()
         {
@@ -36,17 +37,21 @@ namespace Battleship.Model
             return this;
         }
 
+        // Method to set the ship's custom skin
+        public ShipBuilder SetCustomSkin(Boolean isCustom)
+        {
+            this.isCustom = isCustom;
+            return this;
+        }
+
         public Ship Build()
         {
             List<IShipInterface> shipParts = new List<IShipInterface>();
 
-            // Determine ship type based on length
             ShipType shipType = (ShipType)_length;
 
-            // Get the skin for the ship (assuming custom = true for player ships)
-            string skin = _assetManager.GetSkin(shipType, true);
+            string skin = _assetManager.GetSkin(shipType, isCustom);
 
-            // Create ship parts based on orientation and length
             for (int i = 0; i < _length; i++)
             {
                 Vector2i partPosition;
@@ -59,7 +64,7 @@ namespace Battleship.Model
                         _startPosition.y
                     );
                 }
-                else // Vertical orientation
+                else
                 {
                     partPosition = new Vector2i(
                         _startPosition.x,
@@ -67,11 +72,9 @@ namespace Battleship.Model
                     );
                 }
 
-                // Create a ShipPart for each position with the corresponding skin character
                 shipParts.Add(new ShipPart(partPosition.x, partPosition.y, partRepresentation));
             }
 
-            // Create and return a new Ship with the generated parts
             return new Ship(shipParts);
         }
     }
