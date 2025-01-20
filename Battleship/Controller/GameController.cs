@@ -200,20 +200,21 @@ namespace Battleship.Controller
         private void EndGame()
         {
             Console.Clear();
-            _view.DisplayGameSummary(_model.player1, _model.player2, _model.Winner);
-
-            if (_model.gameMode == "PvE" && _model.Winner is Player)
+            if (_model.gameMode == "PvE" && _model.Winner.name == "Pierwszy")
             {
                 GameAchievements.UpdateAchievement("PvE");
             }
             else if (_model.gameMode == "PvP")
             {
-                GameAchievements.UpdateAchievement("PvE");
+                GameAchievements.UpdateAchievement("PvP");
             }
             else if (_model.gameMode == "Sim")
             {
                 GameAchievements.UpdateAchievement("Sim");
             }
+            _view.DisplayGameSummary(_model.player1, _model.player2, _model.Winner);
+
+            
 
             Console.ReadKey(true);
             Console.Clear();
