@@ -54,7 +54,7 @@ namespace Battleship.Model
         }
         public IShipInterface Clone()
         {
-            return new ShipPart(position.x, position.y);
+            return new ShipPart(position.x, position.y,representation);
         }
     }
 }

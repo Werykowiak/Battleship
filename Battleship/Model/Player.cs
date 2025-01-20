@@ -196,12 +196,7 @@ namespace Battleship.Model
 
         private bool TryPlaceShip(int length)
         {
-            Ship ship = shipBuilder
-                .SetLength(length)
-                .SetOrientation(orientation)
-                .SetStartPosition(position)
-                .SetCustomSkin(isCustom)
-                .Build();
+            Ship ship = (Ship)CurrentPlaceholderShip.Clone();
 
             if (!IsValidPlacement(ship))
                 return false;
