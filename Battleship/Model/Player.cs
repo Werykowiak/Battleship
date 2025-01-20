@@ -25,6 +25,7 @@ namespace Battleship.Model
         protected Vector2i position = new Vector2i(0, 0);
         protected Orientation orientation = Orientation.Horizontal;
         protected const int BOARD_SIZE = 10;
+        protected bool isCustom = false;
 
         public BasePlayer(string name)
         {
@@ -136,6 +137,7 @@ namespace Battleship.Model
                 .SetLength(length)
                 .SetOrientation(orientation)
                 .SetStartPosition(position)
+                .SetCustomSkin(isCustom)
                 .Build();
         }
 
@@ -166,6 +168,10 @@ namespace Battleship.Model
                         Orientation.Vertical : Orientation.Horizontal;
                     moved = true;
                     break;
+                 case ConsoleKey.C:
+                    isCustom = !isCustom;
+                    moved = true;
+                    break;
                 case ConsoleKey.Enter:
                     return TryPlaceShip(length);
             }
@@ -194,6 +200,7 @@ namespace Battleship.Model
                 .SetLength(length)
                 .SetOrientation(orientation)
                 .SetStartPosition(position)
+                .SetCustomSkin(isCustom)
                 .Build();
 
             if (!IsValidPlacement(ship))
@@ -261,6 +268,7 @@ namespace Battleship.Model
                         .SetLength(length)
                         .SetOrientation(orientation)
                         .SetStartPosition(position)
+                        .SetCustomSkin(false)
                         .Build();
 
                     if (IsValidPlacement(ship))
