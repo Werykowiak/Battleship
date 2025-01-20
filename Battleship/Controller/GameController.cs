@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Battleship.Model;
-using Battleship.View;
+﻿using Battleship.Model;
 using Battleship.Pattern;
+using Battleship.View;
 using Spectre.Console;
 
 namespace Battleship.Controller
@@ -20,11 +15,12 @@ namespace Battleship.Controller
         {
             _model = model;
             _view = view;
-            
-            _model.Connect("GAME_OVER", new Observator.Listener(() => {
+
+            _model.Connect("GAME_OVER", new Observator.Listener(() =>
+            {
                 _isGameInProgress = false;
                 EndGame();
-                return  false;
+                return false;
             }));
         }
 
@@ -81,36 +77,36 @@ namespace Battleship.Controller
             if (!_isGameInProgress) return;
 
             Console.Clear();
-            _view.DisplayMap(_model.getShipFleet(_model.CurrentPlayer).getParts(), 
-                            _model.getShots(_model.CurrentPlayer), 
+            _view.DisplayMap(_model.getShipFleet(_model.CurrentPlayer).getParts(),
+                            _model.getShots(_model.CurrentPlayer),
                             _model.CurrentPlayer);
             _view.DisplayShotInstructions();
             _model.resetGame();
-            _model.gameMode = "PvP";
             while (!_model.GameOver)
             {
                 Console.Clear();
                 _view.DisplayMap(_model.getShipFleet(_model.CurrentPlayer).getParts(), _model.getShots(_model.CurrentPlayer), _model.CurrentPlayer);
                 _view.DisplayShotInstructions();
 
-            int result = _model.addShot(_model.CurrentPlayer);
-            
-            if (!_isGameInProgress) return;
+                int result = _model.addShot(_model.CurrentPlayer);
 
-            Console.Clear();
-            _view.DisplayMap(_model.getShipFleet(_model.CurrentPlayer).getParts(), 
-                            _model.getShots(_model.CurrentPlayer), 
-                            _model.CurrentPlayer);
-            _view.DisplayShotMessage(result);
+                if (!_isGameInProgress) return;
 
-            if (result == 4)
-            {
-                _model.nextTurn();
-            }
-            
-            if (_isGameInProgress)
-            {
-                Console.ReadKey(true);
+                Console.Clear();
+                _view.DisplayMap(_model.getShipFleet(_model.CurrentPlayer).getParts(),
+                                _model.getShots(_model.CurrentPlayer),
+                                _model.CurrentPlayer);
+                _view.DisplayShotMessage(result);
+
+                if (result == 4)
+                {
+                    _model.nextTurn();
+                }
+
+                if (_isGameInProgress)
+                {
+                    Console.ReadKey(true);
+                }
             }
         }
 
@@ -118,7 +114,7 @@ namespace Battleship.Controller
         {
             _model.resetGame();
             _isGameInProgress = true;
-
+            _model.gameMode = "PvP";
             while (_isGameInProgress)
             {
                 ProcessTurn(_model.CurrentPlayer);
@@ -134,7 +130,7 @@ namespace Battleship.Controller
             while (_isGameInProgress)
             {
                 ProcessTurn(_model.CurrentPlayer);
-                
+
                 if (_isGameInProgress && _model.CurrentPlayer == _model.player2)
                 {
                     ProcessAITurn();
@@ -151,7 +147,7 @@ namespace Battleship.Controller
 
                 Console.Clear();
                 _view.DisplayShotMessage(result);
-                
+
                 if (result == 4)
                 {
                     _model.nextTurn();
@@ -176,12 +172,12 @@ namespace Battleship.Controller
                 Console.Clear();
                 _view.DisplayMap(_model.getShipFleet(_model.CurrentPlayer).getParts(), _model.getShots(_model.CurrentPlayer), _model.CurrentPlayer);
                 _view.DisplayShotMessage(result);
-            while (_isGameInProgress)
-            {
-                ProcessTurn(_model.CurrentPlayer);
+                while (_isGameInProgress)
+                {
+                    ProcessTurn(_model.CurrentPlayer);
+                }
             }
         }
-
         private void BuildFleets()
         {
             Console.Clear();
@@ -199,9 +195,9 @@ namespace Battleship.Controller
                     .Title($"Select [green]difficulty[/] for {playerName}")
                     .PageSize(3)
                     .AddChoices(new[] {
-                        "Easy", "Medium", "Hard"
+                    "Easy", "Medium", "Hard"
                     }));
-            
+
             return difficulty switch
             {
                 "Easy" => AIDifficulty.Easy,
@@ -214,16 +210,20 @@ namespace Battleship.Controller
         {
             Console.Clear();
             _view.DisplayGameSummary(_model.player1, _model.player2, _model.Winner);
-            if(_model.gameMode == "PvE" && _model.Winner is Player )
+
+            if (_model.gameMode == "PvE" && _model.Winner is Player)
             {
                 GameAchievements.UpdateAchievement("PvE");
-            }else if(_model.gameMode == "PvP")
+            }
+            else if (_model.gameMode == "PvP")
             {
                 GameAchievements.UpdateAchievement("PvE");
-            }else if(_model.gameMode == "Sim")
+            }
+            else if (_model.gameMode == "Sim")
             {
                 GameAchievements.UpdateAchievement("Sim");
             }
+
             Console.ReadKey(true);
             Console.Clear();
             _model.resetGame();
