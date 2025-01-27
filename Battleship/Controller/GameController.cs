@@ -117,7 +117,7 @@ namespace Battleship.Controller
         {
             _model.resetGame();
             _isGameInProgress = true;
-
+            _model.gameMode = "PvE";
             while (_isGameInProgress)
             {
                 ProcessTurn(_model.CurrentPlayer);
